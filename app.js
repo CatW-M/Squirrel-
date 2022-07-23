@@ -36,9 +36,9 @@ function drawSprite(img, sX, sY, sW, sH, dX, dY, dW, dH) {
 
 window.addEventListener("keydown", function(e) {
   keys[e.key] = true;
-  // console.log(keys);
+  console.log(keys);
   console.log(e.key);
-  moveCorgi();
+  // moveCorgi();
   corgi.moving = true;
 
 });
@@ -50,21 +50,25 @@ window.addEventListener("keyup", function(e) {
 });
 
 function moveCorgi() {
-  if (keys[`ArrowUp`] && corgi.y > 0) { //38 is up arrow
+  if ((keys[`ArrowUp`] || keys[`w`]) && corgi.y > 0) { //38 is up arrow
     corgi.y -= corgi.speed;
     corgi.frameY = 3;
+    corgi.moving = true;
   }
-  if (keys[`ArrowDown`] && corgi.y < canvas.height - corgi.height) { //40 is down arrow
+  if ((keys[`ArrowDown`] || keys[`s`]) && corgi.y < canvas.height - corgi.height) { //40 is down arrow
     corgi.y += corgi.speed;
     corgi.frameY = 0;
+    corgi.moving = true;
   }
-  if (keys[`ArrowLeft`] && corgi.x > 0) { //37 is left arrow
+  if ((keys[`ArrowLeft`] || keys[`a`]) && corgi.x > 0) { //37 is left arrow
     corgi.x -= corgi.speed;
     corgi.frameY = 1;
+    corgi.moving = true;
   }
-  if (keys[`ArrowRight`] && corgi.x < canvas.width - corgi.width) { //37 is left arrow
+  if ((keys[`ArrowRight`] || keys[`a`]) && corgi.x < canvas.width - corgi.width) { //37 is left arrow
     corgi.x += corgi.speed;
     corgi.frameY = 2;
+    corgi.moving = true;
   }
 }
 
@@ -73,15 +77,39 @@ function handleCorgiFrame() {
     corgi.frameX++
   }else{ corgi.frameX = 0}
 }
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-  drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
+// function animate() {
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
+//   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+//   drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
   
-  handleCorgiFrame();
-  requestAnimationFrame(animate);
+//   handleCorgiFrame();
+//   requestAnimationFrame(animate);
+// }
+// animate();
+
+let fps, fpsInterval, startTime, now, then, elapsed;
+
+function startAnimating(fps) {
+  fpsInterval = 1000/fps;
+  then = Date.now();
+  startTime = then;
+  animate();
 }
-animate();
+function animate() {
+  requestAnimationFrame(animate);
+  now = Date.now();
+  elapsed = now - then;
+  if (elapsed > fpsInterval){
+    then = now - (elapsed % fpsInterval);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
+      moveCorgi();
+      handleCorgiFrame();
+      requestAnimationFrame(animate);
+  }
+}
+startAnimating(12);
 
 
 
