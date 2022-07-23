@@ -41,24 +41,61 @@ const corgiSprite = new Image();
 corgiSprite.src = "corgi (2).png";
 const background = new Image();
 background.src = "background.png";
-const squirrelSprite = new Image();
-squirrelSprite.src = "squirrel.png";
-
+const images = {};
+images.squirrel = new Image();
+images.squirrel.src = "squirrel.png";
 const squirrelActions = [`up`, `right`, `left`, `down`]
+const numberOfSquirrels = 10;
+const squirrels = [];
 
-class Character {
-  constructor(){
-      this.width = 32;
-      this.height = 32;
-      this.frameX = 0;
+
+class Squirrel {
+  constructor() {
+    this.width = 32;
+    this.height = 32;
+    this.frameX = 0;
+    this.x = 0;
+    this.y = 0;
+    this.speed = (Math.random() * 1.5) + 3.5;
+    this.action = squirrelActions[Math.floor(Math.random() * squirrelActions.length)];
+    if (this.action === `up`) {
       this.frameY = 0;
-      this.x = 0;
-      this.y = 0;
-      this.speed = (Math.random() * 1.5) + 3.5;
-
-
+    } else if(this.action === `right`) {
+      this.frameY = 1;
+    }
   }
+  draw() {
+    drawSprite(images.squirrel, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.x, this.y, this.width, this.height);
+   
+    if (this.frameX < 3) this.frameX++;
+    else this.frameX = 0;
+  }
+  update() {
+    if (this.action === `right`) {
+      if (this.x < (canvas.width + this.width)) { //reset check
+        this.x = 0 - this.width;
+        this.y = Math.random() * (canvas.height - this.height);
+      } else {
+        this.x += this.speed; //move animation
+      } 
+    }
+    if (this.action === `up`) {
+        if (this.y < (0 - this.height)) {
+          this.y = canvas.height + this.height;
+          this.x = Math.random() * canvas.height;
+        } else {
+          this.y -= this.speed;
+        }
+    }
+
+    }
+  }
+
+
+for (let i = 0; i < numberOfSquirrels; i++) {
+  squirrels.push(new Squirrel());
 }
+
 
 
 
@@ -116,16 +153,16 @@ function handleCorgiFrame() {
   } else {corgi.frameX = 0}
 }
 
-function handleSquirrelFrame() {
-  if (squirrel.frameX < 3) { 
-    squirrel.frameX++
-  } else {squirrel.frameX = 0}
-}
-function squirrelMovements() {
-  if (squirrel.x < canvas.width +squirrel.width) {
-    squirrel.x += squirrel.speed;
-  } else {squirrel.x = 0 - squirrel.width}
-}
+// function handleSquirrelFrame() {
+//   if (squirrel.frameX < 3) { 
+//     squirrel.frameX++
+//   } else {squirrel.frameX = 0}
+// }
+// function squirrelMovements() {
+//   if (squirrel.x < canvas.width +squirrel.width) {
+//     squirrel.x += squirrel.speed;
+//   } else {squirrel.x = 0 - squirrel.width}
+// }
 // function animate() {
 //   ctx.clearRect(0, 0, canvas.width, canvas.height);
 //   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
@@ -150,15 +187,22 @@ function animate() {
   elapsed = now - then;
   if (elapsed > fpsInterval){
     then = now - (elapsed % fpsInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
       drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
       moveCorgi();
       handleCorgiFrame();
-      drawSprite(squirrelSprite, squirrel.width * squirrel.frameX, squirrel.height * squirrel.frameY, squirrel.width, squirrel.height, squirrel.x, squirrel.y, squirrel.width, squirrel.height);
-      handleSquirrelFrame();
-      squirrelMovements();
+      for (let i = 0; i < squirrels.length; i++) {
+        squirrels[i].draw();
+        squirrels[i].update();
+      }
+      
+
+      // drawSprite(squirrelSprite, squirrel.width * squirrel.frameX, squirrel.height * squirrel.frameY, squirrel.width, squirrel.height, squirrel.x, squirrel.y, squirrel.width, squirrel.height);
+      // handleSquirrelFrame();
+      // squirrelMovements();
       requestAnimationFrame(animate);
+      
 
   }
 }
