@@ -11,7 +11,7 @@ document.querySelector(`main`).appendChild(canvas);
 // let gameStatus = document.querySelector('#status');
 // let restartButton = document.querySelector('#restart');
 // let high = highScore.textContent;
-let keys = {}; //tutorial
+let keys = []; //tutorial
 
 const corgi = { //from tutorial lines 18-
   x: 0,
@@ -20,19 +20,57 @@ const corgi = { //from tutorial lines 18-
   height: 72,
   frameX: 0,
   frameY: 0,
-  speed:11,
+  speed: 11,
   moving: false
 };
+
+// const squirrel = {
+//   x: 0,
+//   y: 0,
+//   width: 32,
+//   height: 32,
+//   frameX: 0,
+//   frameY: 1,
+//   speed: 6,
+//   moving: false
+// }
+//Need more squirrels, created class called Character to generate multiple randomized squirrels
+
 
 const corgiSprite = new Image();
 corgiSprite.src = "corgi (2).png";
 const background = new Image();
 background.src = "background.png";
+const squirrelSprite = new Image();
+squirrelSprite.src = "squirrel.png";
+
+const squirrelActions = [`up`, `right`, `left`, `down`]
+
+class Character {
+  constructor(){
+      this.width = 32;
+      this.height = 32;
+      this.frameX = 0;
+      this.frameY = 0;
+      this.x = 0;
+      this.y = 0;
+      this.speed = (Math.random() * 1.5) + 3.5;
+
+
+  }
+}
+
+
+
 
 function drawSprite(img, sX, sY, sW, sH, dX, dY, dW, dH) {
   ctx.drawImage(img, sX, sY, sW, sH, dX, dY, dW, dH)
 }
 
+window.addEventListener(`resize`, function(){
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+})
 
 window.addEventListener("keydown", function(e) {
   keys[e.key] = true;
@@ -65,7 +103,7 @@ function moveCorgi() {
     corgi.frameY = 1;
     corgi.moving = true;
   }
-  if ((keys[`ArrowRight`] || keys[`a`]) && corgi.x < canvas.width - corgi.width) { //37 is left arrow
+  if ((keys[`ArrowRight`] || keys[`d`]) && corgi.x < canvas.width - corgi.width) { //37 is left arrow
     corgi.x += corgi.speed;
     corgi.frameY = 2;
     corgi.moving = true;
@@ -75,7 +113,18 @@ function moveCorgi() {
 function handleCorgiFrame() {
   if (corgi.frameX < 3 && corgi.moving) {
     corgi.frameX++
-  }else{ corgi.frameX = 0}
+  } else {corgi.frameX = 0}
+}
+
+function handleSquirrelFrame() {
+  if (squirrel.frameX < 3) { 
+    squirrel.frameX++
+  } else {squirrel.frameX = 0}
+}
+function squirrelMovements() {
+  if (squirrel.x < canvas.width +squirrel.width) {
+    squirrel.x += squirrel.speed;
+  } else {squirrel.x = 0 - squirrel.width}
 }
 // function animate() {
 //   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -106,7 +155,11 @@ function animate() {
       drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
       moveCorgi();
       handleCorgiFrame();
+      drawSprite(squirrelSprite, squirrel.width * squirrel.frameX, squirrel.height * squirrel.frameY, squirrel.width, squirrel.height, squirrel.x, squirrel.y, squirrel.width, squirrel.height);
+      handleSquirrelFrame();
+      squirrelMovements();
       requestAnimationFrame(animate);
+
   }
 }
 startAnimating(12);
