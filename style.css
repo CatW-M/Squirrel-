@@ -12,10 +12,10 @@ body {
   background-repeat: space;
 } 
 
-h1, h2 {
+/* h1, h2 {
   font-family: 'Press Start 2P', monospace;
   color: rgb(45, 77, 193);
-}
+} */
 
 #game {
   /* background-image: url("./background.png");
@@ -30,7 +30,7 @@ h1, h2 {
   transform: translate(-50%, -50%); */
 }
 
-#container {
+/* #container {
 max-width: 50em;
 background-color: rgb(26, 71, 62);
 margin: 0 auto;
@@ -59,7 +59,7 @@ grid-template-areas: "top-left top-left top-right"
   grid-area: top-right;
   /* background-color: #222; */
   /* background-image: url('../img/funky-lines.png'); */
-}
+/* }
 
 main {
   grid-area: game;
@@ -68,12 +68,12 @@ main {
 
 #btm-left {
   grid-area: btm-left;
-  /* background-color: #222; */
+  /* background-color: #222; 
 }
 
 #btm-right {
   grid-area: btm-right;
-  /* background-color: #222; */
+  /* background-color: #222; 
 }
 #restart {
   margin-left: 25px;
@@ -81,4 +81,4 @@ main {
   height: 25px;
   background-color: rgb(224, 83, 229);
   margin-right: 25px;
-}
+} */ */
