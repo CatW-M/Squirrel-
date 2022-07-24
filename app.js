@@ -27,14 +27,60 @@ const corgi = {
 
 const corgiSprite = new Image();
 corgiSprite.src = "corgi (2).png";
-const background = new Image();
-background.src = "background.png";
+// const background = new Image();
+// background.src = "background.png";
 const images = {};
 images.squirrel = new Image();
 images.squirrel.src = "squirrel.png";
 const squirrelActions = [`up`, `right`, `left`, `down`]
 const numberOfSquirrels = 8;
 const squirrels = [];
+class Boundary {
+  static width = 75
+  static height = 75
+  constructor({position}) {
+    this.position = position;
+    this.width = 75
+    this.height = 75
+  }
+  drawBoundary() {
+    ctx.fillStyle = `darkgreen`;
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
+  }
+}
+const map = [
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', ' ', ' ', '-', '-', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
+]
+const boundaries = [];
+
+
+
+map.forEach((row, i) => {
+  row.forEach((symbol, j) => {
+    switch (symbol) {
+      case '-':
+        boundaries.push(
+          new Boundary({
+          position: {
+            x: Boundary.width * j,
+            y: Boundary.height * i
+          }
+        })
+        )
+        break
+    }
+  })
+})
+// boundaries.forEach((boundary) => {
+//   boundary.drawBoundary()
+// });
 
 class Squirrel {
   constructor() {
@@ -162,14 +208,14 @@ function animate() {
   if (elapsed > fpsInterval) {
     then = now - (elapsed % fpsInterval);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    // ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    boundaries.forEach((boundary) => {
+        boundary.drawBoundary()
+       });
     drawSprite(corgiSprite, corgi.width * corgi.frameX, corgi.height * corgi.frameY, corgi.width, corgi.height, corgi.x, corgi.y, corgi.width, corgi.height);
     moveCorgi();
     handleCorgiFrame();
-    for (let i = 0; i < squirrels.length; i++) {
-      squirrels[i].draw();
-      squirrels[i].update();
-    }
+  
     // To Do detectHit(corgi, squirrels[i]);
     requestAnimationFrame(animate);
   }
