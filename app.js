@@ -4,70 +4,40 @@ const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 document.querySelector(`main`).appendChild(canvas);
-let gutter = 5;
-let corgiImage = new Image();
-corgiImage.src = "corgi (2).png";
-let keys = [];
-let fps, fpsInterval, startTime, now, then, elapsed;
-
-class Corgi {
-  constructor() {
-    this.x = 75,
-    this.y = 75,
-    this.width = 66,
-    this.height = 72,
-    this.frameX = 0,
-    this.frameY = 0,
-    this.speed = 11,
-    this.moving = false
-  }
-  draw() {
-    ctx.drawImage(corgiImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.x, this.y, this.width, this.height)
-  }
-  move() {
-    window.addEventListener("keydown", function (e) {
-      keys[e.key] = true;
-      
-      // moveCorgi();
-      this.moving = true;
-    });
-    
-    window.addEventListener("keyup", function (e) {
-      delete keys[e.key];
-      this.moving = false;
-    });
-      if (keys[`ArrowUp`] || keys[`w`])  { //38 is up arrow
-        this.y -= this.speed;
-        this.frameY = 3;
-        this.moving = true;
-      }
-      if (keys[`ArrowDown`] || keys[`s`]) {
-        this.y += this.speed;
-        this.frameY = 0;
-        this.moving = true;
-      }
-      if (keys[`ArrowLeft`] || keys[`a`]) { //37 is left arrow
-        this.x -= this.speed;
-        this.frameY = 1;
-        this.moving = true;
-      }
-      if (keys[`ArrowRight`] || keys[`d`]) { //37 is left arrow
-        this.x += this.speed;
-        this.frameY = 2;
-        this.moving = true;
-      }
-    } 
-  
-
-
-  handleFrame() {
-    if (this.frameX < 3 && this.moving) {
-      this.frameX++
-    } else {this.frameX = 0 }
+const boundaries = [];
+const keys = {
+  w: {
+    pressed: false
+  },
+  s: {
+    pressed: false
+  },
+  a: {
+    pressed: false
+  },
+  d: {
+    pressed: false
   }
 }
+let lastKey = ``;
 
-const corgi = new Corgi();
+const map = [
+  ['-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', '-', ' ', '-', '-', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', ' ', '-', ' ', '-', '-', ' ', '-'],
+  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-']
+]
+let corgiImage = new Image();
+corgiImage.src = "corgi (2).png";
+let fps, fpsInterval, startTime, now, then, elapsed;
+
+addEventListener(`resize`, function () {
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+})  
 
 
 class Boundary {
@@ -83,14 +53,6 @@ class Boundary {
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
   }
 }
-const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
-  ['-', ' ', '-', '-', '-', ' ', '-', '-', '-', '-', ' ', '-'],
-  ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-]
-const boundaries = [];
 
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
@@ -109,40 +71,146 @@ map.forEach((row, i) => {
   })
 })
 
+class Player {
+  constructor({position, velocity}) {
+    this.position = position
+    this.velocity = velocity
+    this.width = 66,
+    this.height = 72,
+    this.frameX = 0,
+    this.frameY = 0,
+    this.moving = false
+  }
+  draw() {
+    ctx.drawImage(corgiImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+  }
+  update() {
+    this.draw()
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y;
+    if (this.frameX < 3 && this.moving) {
+      this.frameX++
+    } else {this.frameX = 0 }   
+  } 
+}
 
-window.addEventListener(`resize`, function () {
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
-})
-// function detectBoundary(player1, array) {
-//   for (let i = 0; i < array.length; i++) {
-//     let hitTest =
-//       player1.y + player1.height > array[i].y &&
-//       player1.y < array[i].y + array[i].height &&
-//       player1.x + player1.width > array[i].x &&
-//       player1.x < array[i].x + array[i].width;
-
-//     if (hitTest) {
-//       let newScore = Number(score.textContent) + 1; 
-//       score.textContent = newScore;
-//       gameStatus.textContent = 'Good Dog! You caught the squirrel!!';
-//       return renderSquirrels();
-//     } else {
-//       return false;
-//     }
-//   }
-// }
-
- 
+let corgi = new Player({
+  position: {
+    x: Boundary.width + 2,
+    y: Boundary.height + 2
+  },
+  velocity: {
+    x: 0,
+    y: 0
+  }
+});
 
 
-  
- 
+addEventListener("keydown", ({key}) => {
+  corgi.moving = true;
+  switch (key) {
+    case `ArrowUp`:
+      keys.w.pressed = true
+      lastKey = `w`
+      corgi.frameY = 3;
+      break
+    case `w`:
+      keys.w.pressed = true
+      lastKey = `w`
+      corgi.frameY = 3;
+      break
+    case `ArrowDown`:
+      keys.s.pressed = true
+      lastKey = `s`
+      corgi.frameY = 0;
+      break
+    case `s`:
+      keys.s.pressed = true
+      lastKey = `s`
+      corgi.frameY = 0;
+      break
+    case `ArrowLeft`: 
+      keys.a.pressed = true
+      lastKey = `a`
+      corgi.frameY = 1;
+      break
+    case `a`: 
+      keys.a.pressed = true
+      lastKey = `a`
+      corgi.frameY = 1;
+      break
+    case `ArrowRight`:
+      keys.d.pressed = true
+      lastKey = `d`
+      corgi.frameY = 2;
+      break
+    case `d`:
+      keys.d.pressed = true
+      lastKey = `d`
+      corgi.frameY = 2;
+      break
+  }
+});
+
+addEventListener("keyup", ({key}) => {
+  corgi.moving = false;
+  switch (key) {
+    case `ArrowUp`:
+      keys.w.pressed = false
+      corgi.frameY = 3;
+      break
+    case `w`:
+      keys.w.pressed = false
+      corgi.frameY = 3;
+      break
+    case `ArrowDown`:
+      keys.s.pressed = false
+      corgi.frameY = 0;
+      break
+    case `s`:
+      keys.s.pressed = false
+      corgi.frameY = 0;
+      break
+    case `ArrowLeft`: 
+      keys.a.pressed = false
+      corgi.frameY = 1;
+      break
+    case `a`: 
+      keys.a.pressed = false
+      corgi.frameY = 1;
+      break
+    case `ArrowRight`:
+      keys.d.pressed = false
+      corgi.frameY = 2;
+      break
+    case `d`:
+      keys.d.pressed = false
+      corgi.frameY = 2;
+      break
+  }
+});
+
+
 function startAnimating(fps) {
   fpsInterval = 1000 / fps;
   then = Date.now();
   startTime = then;
   animate();
+}
+function rectangleCollidesWithSquare({
+  rectangle,
+  square
+}) {
+return (
+  rectangle.position.y +rectangle.velocity.y <= 
+    square.position.y + square.height && 
+  rectangle.position.x + rectangle.width + rectangle.velocity.x >= 
+    square.position.x &&
+  rectangle.position.y + rectangle.height + rectangle.velocity.y >= 
+    square.position.y && 
+  rectangle.position.x + rectangle.velocity.x <= 
+    square.position.x + square.width
+    )
 }
 
 function animate() {
@@ -151,16 +219,114 @@ function animate() {
   elapsed = now - then;
   if (elapsed > fpsInterval) {
     then = now - (elapsed % fpsInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    boundaries.forEach((boundary) => {
-        boundary.draw();
-    });
-      corgi.draw();
-      corgi.move();
-      corgi.handleFrame();
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  if (keys.w.pressed && lastKey ===`w`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+    if (rectangleCollidesWithSquare({
+      rectangle: {...corgi, velocity: {
+        x: 0,
+        y: -5
+      }
+    },
+      square: boundary
+    })
+    ){
+    corgi.velocity.y = 0
+    break
+    } else{
+      corgi.velocity.y = -5
+    }
+  }
+  } else if (keys.a.pressed && lastKey ===`a`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+    if (rectangleCollidesWithSquare({
+      rectangle: {...corgi, velocity: {
+        x: -5,
+        y: 0
+      }
+    },
+      square: boundary
+    })
+    ){
+    corgi.velocity.x = 0
+    break
+    } else {
+      corgi.velocity.x = -5
+    }
+  }
+  } else if (keys.a.pressed && lastKey ===`a`) {
+    corgi.velocity.x = -5
+  } else if (keys.s.pressed && lastKey ===`s`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+    if (rectangleCollidesWithSquare({
+      rectangle: {...corgi, velocity: {
+        x: 0,
+        y: 5
+      }
+    },
+      square: boundary
+    })
+    ){
+    corgi.velocity.y = 0
+    break
+    } else {
+      corgi.velocity.y = 5
+    }
+  }
+  } else if (keys.d.pressed && lastKey ===`d`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+    if (rectangleCollidesWithSquare({
+      rectangle: {...corgi, velocity: {
+        x: 5,
+        y: 0
+      }
+    },
+      square: boundary
+    })
+    ){
+    corgi.velocity.x = 0
+    break
+    } else{
+      corgi.velocity.y = -5
+    }
+  }
+  } else if (keys.a.pressed && lastKey ===`a`) {
+    corgi.velocity.x = -5
+  }
+  
+  boundaries.forEach((boundary) => {
+    boundary.draw();
+    if (
+      rectangleCollidesWithSquare({
+      rectangle: corgi,
+      square: boundary
+    })
+    )
+      {
+         corgi.velocity.y = 0
+         corgi.velocity.x = 0
+      }
+  })
+  corgi.update()
+  // corgi.velocity.y = 0
+  // corgi.velocity.x = 0
+
+ 
+  }
+}
+startAnimating(40);
+
+    
+   
+    
+      
     //   boundaries.forEach((boundary) => {
-    // if (corgi.y < (boundary.position.y + Boundary.height)) {
+
     //       corgi.y = (boundary.position.y + Boundary.height)
     //     } else if(corgi.x + corgi.width > boundary.position.x) {
     //       corgi.x = boundary.position.x - corgi.width
@@ -170,10 +336,10 @@ function animate() {
     //       corgi.x = Boundary.width;
     //     }
     //   });
-    requestAnimationFrame(animate);
-  }
-}
-startAnimating(12);
+    // 
+  
+// }
+// startAnimating(12);
 
 //====================== COLLISION DETECTION ======================= //
 // function detectBoundary(player1, array) {
