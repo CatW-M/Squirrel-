@@ -5,6 +5,7 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 document.querySelector(`main`).appendChild(canvas);
 const boundaries = [];
+
 const keys = {
   w: {
     pressed: false
@@ -19,38 +20,54 @@ const keys = {
     pressed: false
   }
 }
+
 let lastKey = ``;
 
 const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
-  ['-', ' ', '-', ' ', '-', '-', ' ', '-'],
-  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
-  ['-', ' ', '-', ' ', '-', '-', ' ', '-'],
-  ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-']
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 ]
-let corgiImage = new Image();
-corgiImage.src = "corgi (2).png";
-let fps, fpsInterval, startTime, now, then, elapsed;
 
+let fps, fpsInterval, startTime, now, then, elapsed;
+const pellets = [];
 addEventListener(`resize`, function () {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
 })  
 
-
-class Boundary {
-  static width = 75
-  static height = 75
+class Pellets {
   constructor({position}) {
-    this.position = position;
-    this.width = 75
-    this.height = 75
+    this.position = position
+    this.radius = 3
   }
   draw() {
-    ctx.fillStyle = `darkgreen`;
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
+    ctx.beginPath()
+    ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+    ctx.fillStyle = '#D27D2D'
+    ctx.fill()
+    ctx.closePath()
+  }
+}
+
+class Boundary {
+  static width = 80
+  static height = 80
+  constructor({position, image}) {
+    this.position = position;
+    this.width = 80
+    this.height = 80
+    this.image = image
+  }
+  draw() {
+    ctx.drawImage(this.image, this.position.x, this.position.y);
   }
 }
 
@@ -61,18 +78,29 @@ map.forEach((row, i) => {
         boundaries.push(
           new Boundary({
           position: {
-            x: Boundary.width * j,
-            y: Boundary.height * i
-          }
+            x: j * Boundary.width,
+            y: i * Boundary.height
+          },
+          image: createImage("bushboundary.png")
         })
         )
         break
+      case '.':
+            pellets.push(
+              new Pellets({
+              position: {
+                x: j * Boundary.width + Boundary.width / 2,
+                y: i * Boundary.height + Boundary.height / 2
+              }
+            })
+            )
+            break
     }
   })
 })
 
 class Player {
-  constructor({position, velocity}) {
+  constructor({position, velocity, image}) {
     this.position = position
     this.velocity = velocity
     this.width = 66,
@@ -80,9 +108,10 @@ class Player {
     this.frameX = 0,
     this.frameY = 0,
     this.moving = false
+    this.image = image
   }
   draw() {
-    ctx.drawImage(corgiImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
   }
   update() {
     this.draw()
@@ -102,7 +131,8 @@ let corgi = new Player({
   velocity: {
     x: 0,
     y: 0
-  }
+  },
+  image: createImage("corgi (2).png")
 });
 
 
@@ -174,6 +204,7 @@ addEventListener("keyup", ({key}) => {
     case `ArrowLeft`: 
       keys.a.pressed = false
       corgi.frameY = 1;
+      console.log(`up!!!`)
       break
     case `a`: 
       keys.a.pressed = false
@@ -190,6 +221,12 @@ addEventListener("keyup", ({key}) => {
   }
 });
 
+function createImage(src) {
+  const image = new Image()
+    image.src = src;
+    return image
+  
+}
 
 function startAnimating(fps) {
   fpsInterval = 1000 / fps;
@@ -197,6 +234,23 @@ function startAnimating(fps) {
   startTime = then;
   animate();
 }
+function rectangleCircleColliding({
+  circle,
+  rectangle}){
+  let distX = Math.abs(circle.position.x - rectangle.position.x - rectangle.width/2);
+  let distY = Math.abs(circle.position.y - rectangle.position.y - rectangle.height/2);
+
+  if (distX > (rectangle.width / 2 + circle.radius)) { return false; }
+  if (distY > (rectangle.height / 2 + circle.radius)) { return false; }
+
+  if (distX <= (rectangle.width / 2)) { return true; } 
+  if (distY <= (rectangle.height / 2)) { return true; }
+
+  let dx=distX-rectangle.width / 2;
+  let dy=distY-rectangle.height / 2;
+  return (dx*dx+dy*dy<=(circle.radius * circle.radius));
+}
+
 function rectangleCollidesWithSquare({
   rectangle,
   square
@@ -219,109 +273,125 @@ function animate() {
   elapsed = now - then;
   if (elapsed > fpsInterval) {
     then = now - (elapsed % fpsInterval);
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if(keys.w.pressed && lastKey === `w`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i];
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 0,
+            y: -5
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.y = 0
+        break
+      } else {
+        corgi.velocity.y = -5
+      }
+    }
+  } else if(keys.a.pressed && lastKey === `a`) {
 
-  if (keys.w.pressed && lastKey ===`w`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
-    if (rectangleCollidesWithSquare({
-      rectangle: {...corgi, velocity: {
-        x: 0,
-        y: -5
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: -5,
+            y: 0
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.x = 0
+        break
+      } else {
+        corgi.velocity.x = -5
       }
-    },
-      square: boundary
-    })
-    ){
-    corgi.velocity.y = 0
-    break
-    } else{
-      corgi.velocity.y = -5
     }
-  }
-  } else if (keys.a.pressed && lastKey ===`a`) {
+  } else if (keys.s.pressed && lastKey === `s`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
-    if (rectangleCollidesWithSquare({
-      rectangle: {...corgi, velocity: {
-        x: -5,
-        y: 0
+      if (
+        rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 0,
+            y: 5
+          }
+        },
+        square: boundary
+        })
+      ) {
+        corgi.velocity.y = 0
+        break
+      } else {
+        corgi.velocity.y = 5
       }
-    },
-      square: boundary
-    })
-    ){
-    corgi.velocity.x = 0
-    break
-    } else {
-      corgi.velocity.x = -5
     }
-  }
-  } else if (keys.a.pressed && lastKey ===`a`) {
-    corgi.velocity.x = -5
-  } else if (keys.s.pressed && lastKey ===`s`) {
+  } else if (keys.d.pressed && lastKey === `d`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
-    if (rectangleCollidesWithSquare({
-      rectangle: {...corgi, velocity: {
-        x: 0,
-        y: 5
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 5,
+            y: 0
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.x = 0
+        break
+      } else {
+        corgi.velocity.x = 5
       }
-    },
-      square: boundary
-    })
-    ){
-    corgi.velocity.y = 0
-    break
-    } else {
-      corgi.velocity.y = 5
     }
+  } else {
+    corgi.velocity.y = 0;
+    corgi.velocity.x = 0;
   }
-  } else if (keys.d.pressed && lastKey ===`d`) {
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-    if (rectangleCollidesWithSquare({
-      rectangle: {...corgi, velocity: {
-        x: 5,
-        y: 0
+  for (let i = pellets.length - 1; 0 < i; i--) {
+      const pellet = pellets[i]
+      pellet.draw();
+      if (rectangleCircleColliding({
+        circle: pellet,
+        rectangle: corgi
+      })
+      ) {
+        pellets.splice(i, 1)
       }
-    },
-      square: boundary
-    })
-    ){
-    corgi.velocity.x = 0
-    break
-    } else{
-      corgi.velocity.y = -5
-    }
-  }
-  } else if (keys.a.pressed && lastKey ===`a`) {
-    corgi.velocity.x = -5
   }
   
+   
+  
+
   boundaries.forEach((boundary) => {
     boundary.draw();
     if (
       rectangleCollidesWithSquare({
-      rectangle: corgi,
-      square: boundary
-    })
-    )
-      {
-         corgi.velocity.y = 0
-         corgi.velocity.x = 0
-      }
+        rectangle: corgi,
+        square: boundary
+      })
+    ) {
+      corgi.velocity.y = 0
+      corgi.velocity.x = 0
+    }
   })
-  corgi.update()
-  // corgi.velocity.y = 0
-  // corgi.velocity.x = 0
 
- 
-  }
+  corgi.update();
 }
-startAnimating(40);
 
-    
+startAnimating(7);
+
+
+// render initial state
    
     
       
