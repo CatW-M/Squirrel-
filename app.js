@@ -374,6 +374,32 @@ function animate() {
     corgi.velocity.y = 0;
     corgi.velocity.x = 0;
   }
+  for (let i = villains.length - 1; 0 <= i; i--) {
+    const villain = villains[i];
+  
+  if (rectangleCollidesWithSquare({
+    rectangle: {
+      ...corgi,
+      velocity: {
+        x: corgi.velocity.x,
+        y: corgi.velocity.y
+      }
+    },
+    square: villain
+  })
+    ) if (villain.scared) {
+    villains.splice(i, 1);
+  } else {
+    cancelAnimationFrame(animationId)
+    alert("The stranger got you! You lose.")
+  }
+ }
+ //win condition goes here
+ if (pellets.length === 0) {
+  alert("You Win!");
+  cancelAnimationFrame(animationId)
+  //add next level stuff here
+ }
 
   for (let i = powerSquirrel.length - 1; 0 <= i; i--) {
     const powerUp = powerSquirrel[i]
@@ -435,19 +461,7 @@ function animate() {
   villains.forEach((villain) => {
     villain.update()
 
-    if (rectangleCollidesWithSquare({
-      rectangle: {
-        ...corgi,
-        velocity: {
-          x: corgi.velocity.x,
-          y: corgi.velocity.y
-        }
-      },
-      square: villain
-    }) && !villain.scared) {
-      cancelAnimationFrame(animationId)
-      alert("The stranger got you! You lose.")
-    }
+ 
     const collisions = []; 
     boundaries.forEach(boundary => {
 
