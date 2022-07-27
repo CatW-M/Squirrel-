@@ -5,7 +5,10 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 document.querySelector(`main`).appendChild(canvas);
 const scoreDisplay = document.getElementById(`score`)
+let scaredImage = new Image();
+scaredImage.src = "scared.png"
 const boundaries = [];
+const powerSquirrel = [];
 
 const keys = {
   w: {
@@ -33,8 +36,8 @@ const map = [
   ['-', '.', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
   ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '-', '.', 'p', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 ]
 
@@ -58,6 +61,35 @@ class Pellets {
     ctx.closePath()
   }
 }
+
+class PowerSquirrel {
+    static width = 32
+    static height = 32
+    constructor({position, image}) {
+      this.position = position;
+      this.frameX = 0;
+      this.frameY = 1;
+      this.width = 32;
+      this.height = 32;
+      this.image = image;
+      this.moving = true;
+    }
+    draw() {
+        ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+      }
+    update() {
+        this.draw()
+        if (this.frameX < 3 && this.moving) {
+          this.frameX++
+        } else {this.frameX = 0 }  
+        if (this.frameY < 3 && this.moving) {
+          this.frameY++
+        } else {this.frameY = 0}
+        } 
+    }
+  
+ 
+
 
 class Boundary {
   static width = 75
@@ -97,9 +129,21 @@ map.forEach((row, i) => {
             })
             )
             break
+      case 'p':
+          powerSquirrel.push(
+                new PowerSquirrel({
+                position: {
+                  x: j * Boundary.width - 5,
+                  y: i * Boundary.height - 5
+                },
+                image: createImage("squirrel.png")
+              })
+              )
+              break
     }
   })
 })
+
 
 class Player {
   constructor({position, velocity, image}) {
@@ -125,20 +169,37 @@ class Player {
   } 
 }
 
+let corgi = new Player({
+  position: {
+    x: Boundary.width + 2,
+    y: Boundary.height + 2
+  },
+  velocity: {
+    x: 0,
+    y: 0
+  },
+  image: createImage("corgi (2).png")
+});
+
 class Villain {
+  static speed = 2
   constructor({position, velocity, image}) {
-    this.position = position
-    this.velocity = velocity
+    this.position = position,
+    this.velocity = velocity,
     this.width = 72,
     this.height = 72,
     this.frameX = 0,
     this.frameY = 0,
-    this.moving = false
-    this.image = image
-    this.prevCollisions = [];
+    this.moving = false,
+    this.image = image,
+    this.prevCollisions = [],
+    this.speed = 2,
+    this.scared = false
   }
   draw() {
-    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+    if (this.scared) {
+      ctx.drawImage(scaredImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
+      else {ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
   }
   update() {
     this.draw()
@@ -153,28 +214,28 @@ class Villain {
 const villains = [
   new Villain({
     position: {
-    x: (Boundary.width + 2) * 5,
-    y: Boundary.height + 2
+      x: Boundary.width * 5 + 2,
+      y: Boundary.height + 2
     },
     velocity: {
-      x: 2,
+      x: Villain.speed,
+      y: 0
+    },
+    image: createImage("villain.png")
+  }),
+  new Villain({
+    position: {
+      x: Boundary.width + 2,
+      y: Boundary.height * 5 + 2
+    },
+    velocity: {
+      x: Villain.speed,
       y: 0
     },
     image: createImage("villain.png")
   })
 ]
 
-let corgi = new Player({
-  position: {
-    x: Boundary.width + 2,
-    y: Boundary.height + 2
-  },
-  velocity: {
-    x: 0,
-    y: 0
-  },
-  image: createImage("corgi (2).png")
-});
 
 
 
@@ -210,17 +271,18 @@ function rectangleCircleColliding({
 }
 
 function rectangleCollidesWithSquare({ rectangle, square }) {
+  const padding = 0
   return (
-    rectangle.position.y + rectangle.velocity.y <= square.position.y + square.height &&
-    rectangle.position.y + rectangle.height + rectangle.velocity.y >= square.position.y &&
-    rectangle.position.x + rectangle.width + rectangle.velocity.x >= square.position.x &&
-    rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width
+    rectangle.position.y + rectangle.velocity.y <= square.position.y + square.height + padding &&
+    rectangle.position.y + rectangle.height + rectangle.velocity.y >= square.position.y - padding &&
+    rectangle.position.x + rectangle.width + rectangle.velocity.x >= square.position.x - padding &&
+    rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width + padding
   );
 }
-
+let animationId;
 function animate() {
 
-  requestAnimationFrame(animate);
+ animationId = requestAnimationFrame(animate);
   now = Date.now();
   elapsed = now - then;
 
@@ -313,7 +375,35 @@ function animate() {
     corgi.velocity.x = 0;
   }
 
-  for (let i = pellets.length - 1; 0 < i; i--) {
+  for (let i = powerSquirrel.length - 1; 0 <= i; i--) {
+    const powerUp = powerSquirrel[i]
+    powerUp.update();
+    if (rectangleCollidesWithSquare({
+      rectangle: {
+        ...corgi,
+        velocity: {
+          x: corgi.velocity.x,
+          y: corgi.velocity.y
+        }
+      },
+      square: powerUp
+    })
+    ) {
+      powerSquirrel.splice(i, 1)
+      //make strangers scared
+
+      villains.forEach((villain) => {
+        villain.scared = true
+
+        setTimeout(() => {
+          villain.scared = false
+        }, 5000)
+      })
+      }
+    }
+
+
+  for (let i = pellets.length - 1; 0 <= i; i--) {
       const pellet = pellets[i]
       pellet.draw();
       if (rectangleCircleColliding({
@@ -345,6 +435,19 @@ function animate() {
   villains.forEach((villain) => {
     villain.update()
 
+    if (rectangleCollidesWithSquare({
+      rectangle: {
+        ...corgi,
+        velocity: {
+          x: corgi.velocity.x,
+          y: corgi.velocity.y
+        }
+      },
+      square: villain
+    }) && !villain.scared) {
+      cancelAnimationFrame(animationId)
+      alert("The stranger got you! You lose.")
+    }
     const collisions = []; 
     boundaries.forEach(boundary => {
 
@@ -353,7 +456,7 @@ function animate() {
         rectangle: {
           ...villain,
           velocity: {
-            x: 5,
+            x: villain.speed,
             y: 0
           }
         },
@@ -370,7 +473,7 @@ function animate() {
         rectangle: {
           ...villain, 
           velocity: {
-            x: -5,
+            x: -villain.speed,
             y: 0
           }
         },
@@ -387,7 +490,7 @@ function animate() {
           ...villain, 
           velocity: {
             x: 0,
-            y: -5
+            y: -villain.speed
           }
         },
         square: boundary
@@ -403,7 +506,7 @@ function animate() {
           ...villain, 
           velocity: {
             x: 0,
-            y: 5
+            y: villain.speed
           }
         },
         square: boundary
@@ -423,10 +526,11 @@ function animate() {
 
     if (JSON.stringify(collisions) !== JSON.stringify(villain.prevCollisions)) {
       console.log(`goooooooooo`)
-      if (villain.velocity.x > 0) villain.prevCollisions.push(`right`)
-      else if (villain.velocity.x < 0) villain.prevCollisions.push(`left`)
-      else if (villain.velocity.y < 0) villain.prevCollisions.push(`up`)
-      else if (villain.velocity.y > 0) villain.prevCollisions.push(`down`)
+      
+      if (villain.velocity.x > 0) { villain.prevCollisions.push(`right`) }
+      else if (villain.velocity.x < 0) { villain.prevCollisions.push(`left`)}
+      else if (villain.velocity.y < 0) { villain.prevCollisions.push(`up`)}
+      else if (villain.velocity.y > 0) {villain.prevCollisions.push(`down`)}
         
       const pathways = villain.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
@@ -437,18 +541,18 @@ function animate() {
       switch (direction) {
         case `down`:
           villain.velocity.x = 0
-          villain.velocity.y = 5
+          villain.velocity.y = villain.speed
           break
         case `up`:
           villain.velocity.x = 0
-          villain.velocity.y = -5
+          villain.velocity.y = -villain.speed
           break
         case `right`:
-          villain.velocity.x = 5
+          villain.velocity.x = villain.speed
           villain.velocity.y = 0
           break
         case `left`:
-          villain.velocity.x = -5
+          villain.velocity.x = -villain.speed
           villain.velocity.y = 0
           break  
       }
@@ -457,8 +561,6 @@ function animate() {
 
   });
 }
-
-
 
 startAnimating(7); 
 
