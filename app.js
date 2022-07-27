@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 document.querySelector(`main`).appendChild(canvas);
+const scoreDisplay = document.getElementById(`score`)
 const boundaries = [];
 
 const keys = {
@@ -22,6 +23,7 @@ const keys = {
 }
 
 let lastKey = ``;
+let score = 0;
 
 const map = [
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
@@ -32,7 +34,7 @@ const map = [
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
   ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 ]
 
@@ -58,12 +60,12 @@ class Pellets {
 }
 
 class Boundary {
-  static width = 80
-  static height = 80
+  static width = 75
+  static height = 75
   constructor({position, image}) {
     this.position = position;
-    this.width = 80
-    this.height = 80
+    this.width = 75
+    this.height = 75
     this.image = image
   }
   draw() {
@@ -123,6 +125,45 @@ class Player {
   } 
 }
 
+class Villain {
+  constructor({position, velocity, image}) {
+    this.position = position
+    this.velocity = velocity
+    this.width = 72,
+    this.height = 72,
+    this.frameX = 0,
+    this.frameY = 0,
+    this.moving = false
+    this.image = image
+    this.prevCollisions = [];
+  }
+  draw() {
+    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+  }
+  update() {
+    this.draw()
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y;
+    if (this.frameX < 3 && this.moving) {
+      this.frameX++
+    } else {this.frameX = 0 }   
+  } 
+}
+
+const villains = [
+  new Villain({
+    position: {
+    x: (Boundary.width + 2) * 5,
+    y: Boundary.height + 2
+    },
+    velocity: {
+      x: 2,
+      y: 0
+    },
+    image: createImage("villain.png")
+  })
+]
+
 let corgi = new Player({
   position: {
     x: Boundary.width + 2,
@@ -135,6 +176,291 @@ let corgi = new Player({
   image: createImage("corgi (2).png")
 });
 
+
+
+function createImage(src) {
+  const image = new Image()
+    image.src = src;
+    return image
+  
+}
+
+function startAnimating(fps) {
+  fpsInterval = 1000 / fps;
+  then = Date.now();
+  startTime = then;
+
+  animate();
+}
+function rectangleCircleColliding({
+  circle,
+  rectangle}){
+  let distX = Math.abs(circle.position.x - rectangle.position.x - rectangle.width/2);
+  let distY = Math.abs(circle.position.y - rectangle.position.y - rectangle.height/2);
+
+  if (distX > (rectangle.width / 2 + circle.radius)) { return false; }
+  if (distY > (rectangle.height / 2 + circle.radius)) { return false; }
+
+  if (distX <= (rectangle.width / 2)) { return true; } 
+  if (distY <= (rectangle.height / 2)) { return true; }
+
+  let dx=distX-rectangle.width / 2;
+  let dy=distY-rectangle.height / 2;
+  return (dx*dx+dy*dy<=(circle.radius * circle.radius));
+}
+
+function rectangleCollidesWithSquare({ rectangle, square }) {
+  return (
+    rectangle.position.y + rectangle.velocity.y <= square.position.y + square.height &&
+    rectangle.position.y + rectangle.height + rectangle.velocity.y >= square.position.y &&
+    rectangle.position.x + rectangle.width + rectangle.velocity.x >= square.position.x &&
+    rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width
+  );
+}
+
+function animate() {
+
+  requestAnimationFrame(animate);
+  now = Date.now();
+  elapsed = now - then;
+
+  if (elapsed > fpsInterval) {
+    then = now - (elapsed % fpsInterval);
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if(keys.w.pressed && lastKey === `w`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i];
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 0,
+            y: -5
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.y = 0
+        break
+      } else {
+        corgi.velocity.y = -5
+      }
+    }
+  } else if(keys.a.pressed && lastKey === `a`) {
+
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: -5,
+            y: 0
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.x = 0
+        break
+      } else {
+        corgi.velocity.x = -5
+      }
+    }
+  } else if (keys.s.pressed && lastKey === `s`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (
+        rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 0,
+            y: 5
+          }
+        },
+        square: boundary
+        })
+      ) {
+        corgi.velocity.y = 0
+        break
+      } else {
+        corgi.velocity.y = 5
+      }
+    }
+  } else if (keys.d.pressed && lastKey === `d`) {
+    for (let i = 0; i < boundaries.length; i++) {
+      const boundary = boundaries[i]
+      if (rectangleCollidesWithSquare({
+        rectangle: {
+          ...corgi, velocity: {
+            x: 5,
+            y: 0
+          }
+        },
+        square: boundary
+      })
+      ) {
+        corgi.velocity.x = 0
+        break
+      } else {
+        corgi.velocity.x = 5
+      }
+    }
+  } else {
+    corgi.velocity.y = 0;
+    corgi.velocity.x = 0;
+  }
+
+  for (let i = pellets.length - 1; 0 < i; i--) {
+      const pellet = pellets[i]
+      pellet.draw();
+      if (rectangleCircleColliding({
+        circle: pellet,
+        rectangle: corgi
+      })
+      ) {
+        pellets.splice(i, 1)
+        score += 10
+        scoreDisplay.innerHTML = score
+      }
+  }
+  
+  boundaries.forEach((boundary) => {
+    boundary.draw();
+    if (
+      rectangleCollidesWithSquare({
+        rectangle: corgi,
+        square: boundary
+      })
+    ) {
+      corgi.velocity.y = 0
+      corgi.velocity.x = 0
+    }
+  });
+  
+  corgi.update();
+
+  villains.forEach((villain) => {
+    villain.update()
+
+    const collisions = []; 
+    boundaries.forEach(boundary => {
+
+      // right collision
+      const right_collision = rectangleCollidesWithSquare({
+        rectangle: {
+          ...villain,
+          velocity: {
+            x: 5,
+            y: 0
+          }
+        },
+        square: boundary
+      });
+      // console.log(` = > ` + right_collision);
+
+      if (!collisions.includes(`right`) && right_collision) {
+        collisions.push(`right`);
+      } 
+
+      // left collision
+      const left_collision = rectangleCollidesWithSquare({
+        rectangle: {
+          ...villain, 
+          velocity: {
+            x: -5,
+            y: 0
+          }
+        },
+        square: boundary
+      });
+
+      if (!collisions.includes(`left`) && left_collision) {
+        collisions.push(`left`) 
+      }
+
+      // up collision
+      const up_collision = rectangleCollidesWithSquare({
+        rectangle: {
+          ...villain, 
+          velocity: {
+            x: 0,
+            y: -5
+          }
+        },
+        square: boundary
+      });
+
+      if (!collisions.includes(`up`) && up_collision) {
+        collisions.push(`up`);
+      }
+
+      // down collision
+      const down_collision = rectangleCollidesWithSquare({
+        rectangle: {
+          ...villain, 
+          velocity: {
+            x: 0,
+            y: 5
+          }
+        },
+        square: boundary
+      });
+
+      if (!collisions.includes(`down`) && down_collision) {
+        collisions.push(`down`);
+      }
+    });
+
+    if (collisions.length > villain.prevCollisions.length) {
+
+      villain.prevCollisions = collisions
+      console.log(villain.prevCollisions)
+      console.log(collisions)
+    }
+
+    if (JSON.stringify(collisions) !== JSON.stringify(villain.prevCollisions)) {
+      console.log(`goooooooooo`)
+      if (villain.velocity.x > 0) villain.prevCollisions.push(`right`)
+      else if (villain.velocity.x < 0) villain.prevCollisions.push(`left`)
+      else if (villain.velocity.y < 0) villain.prevCollisions.push(`up`)
+      else if (villain.velocity.y > 0) villain.prevCollisions.push(`down`)
+        
+      const pathways = villain.prevCollisions.filter((collision) => {
+        return !collisions.includes(collision)
+      })
+  
+      console.log({pathways});
+      const direction = pathways[Math.floor(Math.random() * pathways.length)]
+      switch (direction) {
+        case `down`:
+          villain.velocity.x = 0
+          villain.velocity.y = 5
+          break
+        case `up`:
+          villain.velocity.x = 0
+          villain.velocity.y = -5
+          break
+        case `right`:
+          villain.velocity.x = 5
+          villain.velocity.y = 0
+          break
+        case `left`:
+          villain.velocity.x = -5
+          villain.velocity.y = 0
+          break  
+      }
+      villain.prevCollisions = [];
+    }
+
+  });
+}
+
+
+
+startAnimating(7); 
 
 addEventListener("keydown", ({key}) => {
   corgi.moving = true;
@@ -220,175 +546,6 @@ addEventListener("keyup", ({key}) => {
       break
   }
 });
-
-function createImage(src) {
-  const image = new Image()
-    image.src = src;
-    return image
-  
-}
-
-function startAnimating(fps) {
-  fpsInterval = 1000 / fps;
-  then = Date.now();
-  startTime = then;
-  animate();
-}
-function rectangleCircleColliding({
-  circle,
-  rectangle}){
-  let distX = Math.abs(circle.position.x - rectangle.position.x - rectangle.width/2);
-  let distY = Math.abs(circle.position.y - rectangle.position.y - rectangle.height/2);
-
-  if (distX > (rectangle.width / 2 + circle.radius)) { return false; }
-  if (distY > (rectangle.height / 2 + circle.radius)) { return false; }
-
-  if (distX <= (rectangle.width / 2)) { return true; } 
-  if (distY <= (rectangle.height / 2)) { return true; }
-
-  let dx=distX-rectangle.width / 2;
-  let dy=distY-rectangle.height / 2;
-  return (dx*dx+dy*dy<=(circle.radius * circle.radius));
-}
-
-function rectangleCollidesWithSquare({
-  rectangle,
-  square
-}) {
-return (
-  rectangle.position.y +rectangle.velocity.y <= 
-    square.position.y + square.height && 
-  rectangle.position.x + rectangle.width + rectangle.velocity.x >= 
-    square.position.x &&
-  rectangle.position.y + rectangle.height + rectangle.velocity.y >= 
-    square.position.y && 
-  rectangle.position.x + rectangle.velocity.x <= 
-    square.position.x + square.width
-    )
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  now = Date.now();
-  elapsed = now - then;
-  if (elapsed > fpsInterval) {
-    then = now - (elapsed % fpsInterval);
-  }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if(keys.w.pressed && lastKey === `w`) {
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i];
-      if (rectangleCollidesWithSquare({
-        rectangle: {
-          ...corgi, velocity: {
-            x: 0,
-            y: -5
-          }
-        },
-        square: boundary
-      })
-      ) {
-        corgi.velocity.y = 0
-        break
-      } else {
-        corgi.velocity.y = -5
-      }
-    }
-  } else if(keys.a.pressed && lastKey === `a`) {
-
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (rectangleCollidesWithSquare({
-        rectangle: {
-          ...corgi, velocity: {
-            x: -5,
-            y: 0
-          }
-        },
-        square: boundary
-      })
-      ) {
-        corgi.velocity.x = 0
-        break
-      } else {
-        corgi.velocity.x = -5
-      }
-    }
-  } else if (keys.s.pressed && lastKey === `s`) {
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (
-        rectangleCollidesWithSquare({
-        rectangle: {
-          ...corgi, velocity: {
-            x: 0,
-            y: 5
-          }
-        },
-        square: boundary
-        })
-      ) {
-        corgi.velocity.y = 0
-        break
-      } else {
-        corgi.velocity.y = 5
-      }
-    }
-  } else if (keys.d.pressed && lastKey === `d`) {
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (rectangleCollidesWithSquare({
-        rectangle: {
-          ...corgi, velocity: {
-            x: 5,
-            y: 0
-          }
-        },
-        square: boundary
-      })
-      ) {
-        corgi.velocity.x = 0
-        break
-      } else {
-        corgi.velocity.x = 5
-      }
-    }
-  } else {
-    corgi.velocity.y = 0;
-    corgi.velocity.x = 0;
-  }
-  for (let i = pellets.length - 1; 0 < i; i--) {
-      const pellet = pellets[i]
-      pellet.draw();
-      if (rectangleCircleColliding({
-        circle: pellet,
-        rectangle: corgi
-      })
-      ) {
-        pellets.splice(i, 1)
-      }
-  }
-  
-   
-  
-
-  boundaries.forEach((boundary) => {
-    boundary.draw();
-    if (
-      rectangleCollidesWithSquare({
-        rectangle: corgi,
-        square: boundary
-      })
-    ) {
-      corgi.velocity.y = 0
-      corgi.velocity.x = 0
-    }
-  })
-
-  corgi.update();
-}
-
-startAnimating(7);
 
 
 // render initial state
@@ -515,7 +672,7 @@ startAnimating(7);
 
 // const images = {};
 // images.squirrel = new Image();
-// images.squirrel.src = "squirrel.png";
+// images.squirrel.src = ;
 // const squirrelActions = [`up`, `right`, `left`, `down`]
 // const numberOfSquirrels = 8;
 // const squirrels = [];
@@ -554,4 +711,4 @@ startAnimating(7);
 //         this.frameY = 2;
 //         this.moving = true;
 //       }
-//     } 
+//     

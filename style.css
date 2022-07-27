@@ -4,6 +4,13 @@ html, body {
   background-color: rgb(109, 216, 109);
 }/*making sure game displays correctly in window*/
 
+p {
+  color: white;
+  font-family: sans-serif;
+  font-size: 18px;
+  margin: 6px;
+  padding: 10px, 20px;
+}
 /* body {
   padding-top: 1em;
   text-align: center;
@@ -70,4 +77,3 @@ main {
   height: 25px;
   background-color: rgb(224, 83, 229);
   margin-right: 25px;
-} */ */
