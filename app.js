@@ -1,15 +1,38 @@
+//prepare canvas
 const canvas = document.createElement(`canvas`);
 canvas.id = `game`;
 const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 document.querySelector(`main`).appendChild(canvas);
+
+//game elements
 const scoreDisplay = document.getElementById(`score`)
+let score = 0;
+
+//game images
 let scaredImage = new Image();
 scaredImage.src = "scared.png"
+
+//game arrays
 const boundaries = [];
 const powerSquirrel = [];
+const map = [
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
+  ['-', 'p', '.', '.', '.', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+]
+const pellets = [];
 
+
+//game objects
 const keys = {
   w: {
     pressed: false
@@ -24,30 +47,13 @@ const keys = {
     pressed: false
   }
 }
-
 let lastKey = ``;
-let score = 0;
 
-const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '-', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '-', '.', 'p', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-]
-
+//animation timing variables
 let fps, fpsInterval, startTime, now, then, elapsed;
-const pellets = [];
-addEventListener(`resize`, function () {
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
-})  
+let animationId;
 
+//js Classes
 class Pellets {
   constructor({position}) {
     this.position = position
@@ -61,7 +67,6 @@ class Pellets {
     ctx.closePath()
   }
 }
-
 class PowerSquirrel {
     static width = 32
     static height = 32
@@ -86,11 +91,7 @@ class PowerSquirrel {
           this.frameY++
         } else {this.frameY = 0}
         } 
-    }
-  
- 
-
-
+    } 
 class Boundary {
   static width = 75
   static height = 75
@@ -104,7 +105,98 @@ class Boundary {
     ctx.drawImage(this.image, this.position.x, this.position.y);
   }
 }
+class Player {
+  constructor({position, velocity, image}) {
+    this.position = position
+    this.velocity = velocity
+    this.width = 66,
+    this.height = 72,
+    this.frameX = 0,
+    this.frameY = 0,
+    this.moving = false
+    this.image = image
+  }
+  draw() {
+    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+  }
+  update() {
+    this.draw()
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y;
+    if (this.frameX < 3 && this.moving) {
+      this.frameX++
+    } else {this.frameX = 0 }   
+  } 
+}
+class Villain {
+  static speed = 2
+  constructor({position, velocity, image}) {
+    this.position = position,
+    this.velocity = velocity,
+    this.width = 72,
+    this.height = 72,
+    this.frameX = 0,
+    this.frameY = 0,
+    this.moving = false,
+    this.image = image,
+    this.prevCollisions = [],
+    this.speed = 2,
+    this.scared = false
+  }
+  draw() {
+    if (this.scared) {
+      ctx.drawImage(scaredImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
+      else {ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
+  }
+  update() {
+    this.draw()
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y;
+    if (this.frameX < 3 && this.moving) {
+      this.frameX++
+    } else {this.frameX = 0 }   
+  } 
+}
 
+//instances of Class objects
+let corgi = new Player({
+  position: {
+    x: Boundary.width + 2,
+    y: Boundary.height + 2
+  },
+  velocity: {
+    x: 0,
+    y: 0
+  },
+  image: createImage("corgi (2).png")
+});
+
+const villains = [
+  new Villain({
+    position: {
+      x: Boundary.width * 5 + 2,
+      y: Boundary.height + 2
+    },
+    velocity: {
+      x: Villain.speed,
+      y: 0
+    },
+    image: createImage("villain.png")
+  }),
+  new Villain({
+    position: {
+      x: Boundary.width + 2,
+      y: Boundary.height * 5 + 2
+    },
+    velocity: {
+      x: Villain.speed,
+      y: 0
+    },
+    image: createImage("villain.png")
+  })
+]
+
+//helper functions
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
     switch (symbol) {
@@ -143,101 +235,6 @@ map.forEach((row, i) => {
     }
   })
 })
-
-
-class Player {
-  constructor({position, velocity, image}) {
-    this.position = position
-    this.velocity = velocity
-    this.width = 66,
-    this.height = 72,
-    this.frameX = 0,
-    this.frameY = 0,
-    this.moving = false
-    this.image = image
-  }
-  draw() {
-    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
-  }
-  update() {
-    this.draw()
-    this.position.x += this.velocity.x
-    this.position.y += this.velocity.y;
-    if (this.frameX < 3 && this.moving) {
-      this.frameX++
-    } else {this.frameX = 0 }   
-  } 
-}
-
-let corgi = new Player({
-  position: {
-    x: Boundary.width + 2,
-    y: Boundary.height + 2
-  },
-  velocity: {
-    x: 0,
-    y: 0
-  },
-  image: createImage("corgi (2).png")
-});
-
-class Villain {
-  static speed = 2
-  constructor({position, velocity, image}) {
-    this.position = position,
-    this.velocity = velocity,
-    this.width = 72,
-    this.height = 72,
-    this.frameX = 0,
-    this.frameY = 0,
-    this.moving = false,
-    this.image = image,
-    this.prevCollisions = [],
-    this.speed = 2,
-    this.scared = false
-  }
-  draw() {
-    if (this.scared) {
-      ctx.drawImage(scaredImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
-      else {ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
-  }
-  update() {
-    this.draw()
-    this.position.x += this.velocity.x
-    this.position.y += this.velocity.y;
-    if (this.frameX < 3 && this.moving) {
-      this.frameX++
-    } else {this.frameX = 0 }   
-  } 
-}
-
-const villains = [
-  new Villain({
-    position: {
-      x: Boundary.width * 5 + 2,
-      y: Boundary.height + 2
-    },
-    velocity: {
-      x: Villain.speed,
-      y: 0
-    },
-    image: createImage("villain.png")
-  }),
-  new Villain({
-    position: {
-      x: Boundary.width + 2,
-      y: Boundary.height * 5 + 2
-    },
-    velocity: {
-      x: Villain.speed,
-      y: 0
-    },
-    image: createImage("villain.png")
-  })
-]
-
-
-
 
 function createImage(src) {
   const image = new Image()
@@ -279,7 +276,9 @@ function rectangleCollidesWithSquare({ rectangle, square }) {
     rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width + padding
   );
 }
-let animationId;
+
+//gameloop
+
 function animate() {
 
  animationId = requestAnimationFrame(animate);
@@ -389,6 +388,7 @@ function animate() {
   })
     ) if (villain.scared) {
     villains.splice(i, 1);
+    //set interval and create new instance of villain/push into villains array
   } else {
     cancelAnimationFrame(animationId)
     alert("The stranger got you! You lose.")
@@ -578,6 +578,7 @@ function animate() {
 
 startAnimating(7); 
 
+//event listeners
 addEventListener("keydown", ({key}) => {
   corgi.moving = true;
   switch (key) {
@@ -663,168 +664,7 @@ addEventListener("keyup", ({key}) => {
   }
 });
 
-
-// render initial state
-   
-    
-      
-    //   boundaries.forEach((boundary) => {
-
-    //       corgi.y = (boundary.position.y + Boundary.height)
-    //     } else if(corgi.x + corgi.width > boundary.position.x) {
-    //       corgi.x = boundary.position.x - corgi.width
-    //     } else if(corgi.y + corgi.height > boundary.position.y) {
-    //       corgi.y = boundary.position.y - corgi.height
-    //     } else if(corgi.x < boundary.position.x + Boundary.width) {
-    //       corgi.x = Boundary.width;
-    //     }
-    //   });
-    // 
-  
-// }
-// startAnimating(12);
-
-//====================== COLLISION DETECTION ======================= //
-// function detectBoundary(player1, array) {
-//   for (let i = 0; i < array.length; i++) {
-//     for (map[i] === `-`) {
-//       let touchTest =
-//       player1.y + player1.height > array[i].y &&
-//       player1.y < array[i].y + array[i].height &&
-//       player1.x + player1.width > array[i].x &&
-//       player1.x < array[i].x + array[i].width;
-
-//     if (touchTest) {
-//       player1.speed = 0
-//     }
-//   }
-// }
-// }
-
-// restartButton.addEventListener('click', function() {
-//   score.textContent = 0;
-// });
-
-
-
-// function gameLoop() {
-//   // clear the canvas
-//   ctx.clearRect(0, 0, canvas.width, canvas.height);
-//   // @todo - add score
-//   // check to see if squirrel is alive
-//   if (squirrel.alive) {
-//     // render squirrel
-//     squirrel.render();
-//     // @todo - check collision (detectHit -> f)
-//     let hit = detectHit(corgi, squirrel);
-//   }
-//   // render corgi
-//   corgi.render();
-// }
-
-
-// class Squirrel {
-  //   constructor() {
-  //     this.width = 32;
-  //     this.height = 32;
-  //     this.frameX = 0;
-  //     this.alive = true;
-  //     this.x = Math.random() * canvas.width;
-  //     this.y = Math.random() * canvas.height;
-  //     this.speed = (Math.random() * 1.5) + 3.5;
-  //     this.action = squirrelActions[Math.floor(Math.random() * 4)];
-  //     if (this.action === `up`) {
-  //       this.frameY = 0;
-  //     } else if (this.action === `right`) {
-  //       this.frameY = 1;
-  //     } else if (this.action === `left`) {
-  //       this.frameY = 2;
-  //     } else if (this.action === `down`) {
-  //       this.frameY = 3;
-  //     }
-  //   }
-  //   draw() {
-  //     drawSprite(images.squirrel, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.x, this.y, this.width, this.height);
-  //     if (this.frameX < 3) this.frameX++;
-  //     else this.frameX = 0;
-  //   }
-  //   update() {
-  //     if (this.action === `right`) {
-  //       if (this.x > (canvas.width + this.width)) { //reset check
-  //         this.x = 0 - this.width;
-  //         this.y = Math.random() * (canvas.height - this.height);
-  //       } else {
-  //         this.x += this.speed; //move animation
-  //       }
-  //     } else if (this.action === `up`) {
-  //       if (this.y < (0 - this.height)) {
-  //         this.y = (canvas.height + this.height);
-  //         this.x = Math.random() * canvas.width;
-  //       } else {
-  //         this.y += this.speed; //move animation
-  //       }
-  //     } else if (this.action === `down`) {
-  //       if (this.y > (canvas.height + this.height)) {
-  //         this.y = (0 - this.height);
-  //         this.x = Math.random() * canvas.width;
-  //       } else {
-  //         this.y += this.speed; //move animation        
-  //       }
-  //     } else if (this.action === `left`) {
-  //       if (this.x < (0 - this.width)) {
-  //         this.x = canvas.width + this.width;
-  //         this.y = Math.random() * canvas.width;
-  //       } else {
-  //         this.x += this.speed; //move animation
-  //       }
-  //     }
-  //   }
-  // }
-  // for (let i = 0; i < numberOfSquirrels; i++) {
-  //   squirrels.push(new Squirrel());
-  // }
-  // const background = new Image();
-// background.src = "background.png";
-
-// const images = {};
-// images.squirrel = new Image();
-// images.squirrel.src = ;
-// const squirrelActions = [`up`, `right`, `left`, `down`]
-// const numberOfSquirrels = 8;
-// const squirrels = [];
-// drawSprite(corgiSprite, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.x, this.y, this.width, this.height);
-// function drawSprite(img, sX, sY, sW, sH, dX, dY, dW, dH) {
-//   ctx.drawImage(img, sX, sY, sW, sH, dX, dY, dW, dH)
-// }
-// const grid_y = Math.round(corgi.y / Boundary.height);
-//     const grid_x = Math.round(corgi.x / Boundary.width);
-
-//       if ((keys[`ArrowUp`] || keys[`w`]) && map[grid_y][grid_x] !== `-`) { //38 is up arrow
-//         this.y -= this.speed;
-//         this.frameY = 3;
-//         this.moving = true;
-//       }
-//       if ((keys[`ArrowDown`] || keys[`s`]) && map[Math.floor(corgi.y / Boundary.height) + 1][grid_x] !== `-`) { //40 is down arrow
-//         this.y += this.speed;
-//         this.frameY = 0;
-//         this.moving = true;
-//       }
-//       console.log(` => ` + corgi.y % Boundary.height);
-//       if ((keys[`ArrowLeft`] || keys[`a`]) && ((
-//           corgi.y % Boundary.height < 33 &&
-//           map[Math.ceil(corgi.y / Boundary.height)][Math.floor(corgi.x / Boundary.width) - 1] !== `-`
-//         ) || (
-//           corgi.y % Boundary.height >= 33 &&
-//           map[Math.floor(corgi.y / Boundary.height)][Math.ceil(corgi.x / Boundary.width) - 1] !== `-`
-//         ))
-//       ) { //37 is left arrow
-//         this.x -= this.speed;
-//         this.frameY = 1;
-//         this.moving = true;
-//       }
-//       if ((keys[`ArrowRight`] || keys[`d`]) && map[Math.ceil(corgi.y / Boundary.height)][Math.floor(corgi.x / Boundary.width) + 1] !== `-`) { //37 is left arrow
-//         this.x += this.speed;
-//         this.frameY = 2;
-//         this.moving = true;
-//       }
-//     
+addEventListener(`resize`, function () {
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+})  
