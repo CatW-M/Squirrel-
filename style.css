@@ -1,5 +1,6 @@
 html, body {
   background-color: rgb(109, 216, 109);
+  /* overflow: hidden; */
 }/*making sure game displays correctly in window*/
 
 p {
@@ -21,6 +22,8 @@ p {
   display:grid;
   margin: auto;
 }
+
+
 /* body {
   padding-top: 1em;
   text-align: center;
@@ -81,9 +84,3 @@ main {
   grid-area: btm-right;
   /* background-color: #222; 
 }
-#restart {
-  margin-left: 25px;
-  width: 75px;
-  height: 25px;
-  background-color: rgb(224, 83, 229);
-  margin-right: 25px;

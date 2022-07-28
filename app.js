@@ -55,7 +55,7 @@ let animationId;
 class Pellets {
   constructor({position}) {
     this.position = position
-    this.radius = 3
+    this.radius = 4
   }
   draw() {
     ctx.beginPath()
@@ -383,6 +383,20 @@ function animate() {
   })
     ) if (villain.scared) {
     villains.splice(i, 1);
+    let regenerate = new Villain(
+      {position: {
+          x: Boundary.width * 5 + 2,
+          y: Boundary.height + 2
+        },
+        velocity: {
+          x: Villain.speed,
+          y: 0
+        },
+        image: createImage("villain.png")
+      });
+      setTimeout(() => {
+        villains.push(regenerate)
+      }, 8000)
     //set interval and create new instance of villain/push into villains array
   } else {
     cancelAnimationFrame(animationId)
