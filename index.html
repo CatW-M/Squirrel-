@@ -9,9 +9,18 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <p><span>Score: </span><span id="score">0</span></p>
-  
+  <div id="splash-screen" class="screen">
+    <h1>Gumbo's Game</h1>
+    <p>Instructions: Gumbo the Corgi's food was spilled by the squirrels! You must collect the spilled kibble to collect points. ASDW or arrow keys may be used to move Gumbo. 
+      Beware of strangers lurking in the yard! If they catch you, you will lose the game. 
+    </p>
+    <button id="start">Start Game</button>
+    <img src="splashpic.png" alt="">
+    <img src="squirrel.png">
+  </div>
     <main> 
+      <p><span>Score: </span><span id="score">0</span></p>
+      <canvas id="game"></canvas>
     </main>
     <!-- <aside id="btm-left"><h2 id="score">0</h2></aside>
     <aside id="btm-right"><h2 id="status">protect your yard!</h2><button id="restart">restart</button></aside>-->

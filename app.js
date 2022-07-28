@@ -1,10 +1,8 @@
 //prepare canvas
-const canvas = document.createElement(`canvas`);
-canvas.id = `game`;
-const ctx = canvas.getContext("2d");
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-document.querySelector(`main`).appendChild(canvas);
+  const canvas = document.getElementById(`game`);
+  const ctx = canvas.getContext("2d");
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 
 //game elements
 const scoreDisplay = document.getElementById(`score`)
@@ -73,7 +71,7 @@ class PowerSquirrel {
     constructor({position, image}) {
       this.position = position;
       this.frameX = 0;
-      this.frameY = 1;
+      this.frameY = 0;
       this.width = 32;
       this.height = 32;
       this.image = image;
@@ -84,14 +82,11 @@ class PowerSquirrel {
       }
     update() {
         this.draw()
-        if (this.frameX < 3 && this.moving) {
+        if (this.frameX < 7 && this.moving) {
           this.frameX++
-        } else {this.frameX = 0 }  
-        if (this.frameY < 3 && this.moving) {
-          this.frameY++
-        } else {this.frameY = 0}
         } 
     } 
+}
 class Boundary {
   static width = 75
   static height = 75
@@ -225,8 +220,8 @@ map.forEach((row, i) => {
           powerSquirrel.push(
                 new PowerSquirrel({
                 position: {
-                  x: j * Boundary.width - 5,
-                  y: i * Boundary.height - 5
+                  x: j * Boundary.width + 15,
+                  y: i * Boundary.height + 15
                 },
                 image: createImage("squirrel.png")
               })
@@ -402,7 +397,7 @@ function animate() {
  }
 
   for (let i = powerSquirrel.length - 1; 0 <= i; i--) {
-    const powerUp = powerSquirrel[i]
+    const powerUp = powerSquirrel[i];
     powerUp.update();
     if (rectangleCollidesWithSquare({
       rectangle: {
@@ -575,8 +570,8 @@ function animate() {
 
   });
 }
+// startAnimating(7); 
 
-startAnimating(7); 
 
 //event listeners
 addEventListener("keydown", ({key}) => {
@@ -668,3 +663,17 @@ addEventListener(`resize`, function () {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
 })  
+
+let splash = document.getElementById(`splash-screen`);
+let btn = document.getElementById(`start`);
+
+btn.addEventListener(`click`, function() {
+  startAnimating(7); 
+  if (splash.style.display === `none`) {
+    splash.style.display = `block`;
+  } else {
+    splash.style.display = `none`;
+  }
+});
+
+

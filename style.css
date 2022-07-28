@@ -4,8 +4,22 @@ html, body {
 
 p {
   color: white;
-  font-family: sans-serif;
+  font-family: 'Press Start 2P', monospace;
   font-size: 18px;
+}
+
+#splash-screen {
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 35px;
+  background-color: darkgoldenrod;
+  margin-left: 33%;
+  margin-right: 33%;
+}
+
+#start {
+  display:grid;
+  margin: auto;
 }
 /* body {
   padding-top: 1em;
