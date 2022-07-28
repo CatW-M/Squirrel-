@@ -14,13 +14,21 @@ p {
   font-family: 'Press Start 2P', monospace;
   font-size: 35px;
   background-color: darkgoldenrod;
-  margin-left: 33%;
-  margin-right: 33%;
+  margin-left: 25%;
+  margin-right: 25%;
+  border: 4px solid black;
 }
 
 #start {
   display:grid;
   margin: auto;
+  background-color: #747b74; /* Green */
+  border: black;
+  color: darkred;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
 }
 
 
