@@ -11,7 +11,7 @@
 <body>
   <div id="splash-screen" class="screen">
     <h1>Gumbo's Game</h1>
-    <p>Instructions: Gumbo the Corgi's food was spilled by the squirrels! You must collect the spilled kibble to collect points. ASDW or arrow keys may be used to move Gumbo. 
+    <p>Instructions: Gumbo the Corgi's food was spilled by the squirrels! You must collect the spilled kibble to collect points. WASD or arrow keys may be used to move Gumbo. 
       Beware of strangers lurking in the yard! If they catch you, you will lose the game. 
     </p>
     <button id="start">Start Game</button>
@@ -19,6 +19,10 @@
     <img src="squirrel.png">
   </div>
     <main> 
+      <audio src="CorgiGameTune - 7:28:22, 7.12 PM.mp3"></audio>
+      <button id="music">Music 
+      <i class="volume-up"></i>
+      </button>
       <p><span>Score: </span><span id="score">0</span></p>
       <canvas id="game"></canvas>
     </main>

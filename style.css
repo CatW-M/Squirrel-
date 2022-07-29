@@ -22,6 +22,7 @@ p {
 #start {
   display:grid;
   margin: auto;
+  font-family: 'Press Start 2P', monospace;
   background-color: #747b74; /* Green */
   border: black;
   color: darkred;
@@ -29,6 +30,36 @@ p {
   text-align: center;
   text-decoration: none;
   font-size: 16px;
+}
+
+#music {
+  font-size: 16px;
+  color: #eee;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(200%, 5%);
+  width: 70px;
+  padding: 15px;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  background: rgba(9, 106, 61, 0.8);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all 0.4s ease-out;
+}
+
+#music.fade:hover {
+  opacity: 0.8;
+}
+
+.fade {
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+  transform: translate(0, 0);
 }
 
 

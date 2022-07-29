@@ -690,4 +690,24 @@ btn.addEventListener(`click`, function() {
   }
 });
 
+const music = document.querySelector("#music");
+const icon = document.querySelector("#music > i");
+const audio = document.querySelector("audio");
+
+music.addEventListener("click", () => {
+  if (audio.paused) {
+    audio.volume = 0.2;
+    audio.play();
+    icon.classList.remove('volume-up');
+    icon.classList.add('volume-mute');
+    
+  } else {
+    audio.pause();
+    icon.classList.remove('volume-mute');
+    icon.classList.add('volume-up');
+  }
+  music.classList.add("fade");
+});
+
+
 
