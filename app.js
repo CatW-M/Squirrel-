@@ -16,17 +16,22 @@ scaredImage.src = "scared.png"
 const boundaries = [];
 const powerSquirrel = [];
 const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-  ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
-  ['-', 'p', '.', '.', '.', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', 'p', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+  [`-`, `-`, `-`],
+  [`-`, `.`, `-`],
+  [`-`, `-`, `-`],
 ]
+// const map = [
+//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
+//   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
+//   ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+//   ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+//   ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
+//   ['-', 'p', '.', '.', '.', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', 'p', '-'],
+//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+// ]
 const pellets = [];
 
 
@@ -272,6 +277,9 @@ function rectangleCollidesWithSquare({ rectangle, square }) {
   );
 }
 
+// test stuff
+let game_active = false;
+
 //gameloop
 
 function animate() {
@@ -404,16 +412,23 @@ function animate() {
   }
  }
  //win condition 
- if (pellets.length === 0) {
-  alert("You win!")
-// let winscreen = document.createElement("div");
-// winscreen.style.width = "100px";
-// winscreen.style.height = "100px";
-// winscreen.style.background = "red";
-// winscreen.style.color = "white";
-// winscreen.innerHTML = "You Win!";
+ if (pellets.length === 0 && game_active) {
+  console.log(`You win!`);
+  // alert("You win!")
+  game_active = false;
+  let winscreen = document.createElement("div");
+ 
+  winscreen.style.background = "red";
+  winscreen.style.color = "white";
+  winscreen.style.padding = '20px';
+  winscreen.style.fontSize = `35px`;
+  winscreen.style.position = `absolute`;
+  winscreen.style.margin= `33%`;
+  winscreen.style.top = `25%`;
 
-// document.getElementById("main").appendChild(winscreen);
+  winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
+
+  document.getElementById("main").appendChild(winscreen);
   cancelAnimationFrame(animationId)
   //future = add next level stuff here
  }
@@ -693,8 +708,10 @@ btn.addEventListener(`click`, function() {
   startAnimating(7); 
   if (splash.style.display === `none`) {
     splash.style.display = `block`;
+    game_active = false;
    
   } else {
+    game_active = true;
     splash.style.display = `none`;
     main.style.display = `visible`;
   }
