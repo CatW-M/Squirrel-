@@ -18,12 +18,12 @@ const powerSquirrel = [];
 const map = [
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
   ['-', 'p', '.', '.', '.', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', 'p', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
 ]
@@ -55,7 +55,7 @@ let animationId;
 class Pellets {
   constructor({position}) {
     this.position = position
-    this.radius = 4
+    this.radius = 5
   }
   draw() {
     ctx.beginPath()
@@ -403,11 +403,19 @@ function animate() {
     alert("The stranger got you! You lose.")
   }
  }
- //win condition goes here
+ //win condition 
  if (pellets.length === 0) {
-  alert("You Win!");
+  alert("You win!")
+// let winscreen = document.createElement("div");
+// winscreen.style.width = "100px";
+// winscreen.style.height = "100px";
+// winscreen.style.background = "red";
+// winscreen.style.color = "white";
+// winscreen.innerHTML = "You Win!";
+
+// document.getElementById("main").appendChild(winscreen);
   cancelAnimationFrame(animationId)
-  //add next level stuff here
+  //future = add next level stuff here
  }
 
   for (let i = powerSquirrel.length - 1; 0 <= i; i--) {
@@ -485,7 +493,7 @@ function animate() {
         },
         square: boundary
       });
-      // console.log(` = > ` + right_collision);
+     
 
       if (!collisions.includes(`right`) && right_collision) {
         collisions.push(`right`);
@@ -534,7 +542,7 @@ function animate() {
         },
         square: boundary
       });
-
+//pushing down here not sure why
       if (!collisions.includes(`down`) && down_collision) {
         collisions.push(`down`);
       }
@@ -677,7 +685,7 @@ addEventListener(`resize`, function () {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
 })  
-
+let main = document.getElementById('main');
 let splash = document.getElementById(`splash-screen`);
 let btn = document.getElementById(`start`);
 
@@ -685,8 +693,10 @@ btn.addEventListener(`click`, function() {
   startAnimating(7); 
   if (splash.style.display === `none`) {
     splash.style.display = `block`;
+   
   } else {
     splash.style.display = `none`;
+    main.style.display = `visible`;
   }
 });
 

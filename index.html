@@ -18,16 +18,15 @@
     <img src="splashgum.png" alt="">
     <img src="squirrel.png">
   </div>
-    <main> 
-      <audio src="CorgiGameTune - 7:28:22, 7.12 PM.mp3"></audio>
-      <button id="music">Music 
+  <div id="main">
+    <p><span>Score: </span><span id="score">0</span><audio src="CorgiGameTune - 7:28:22, 7.12 PM.mp3" type="audio/mpeg" preload loop></audio>
+      <button id="music">Play/Pause
       <i class="volume-up"></i>
-      </button>
-      <p><span>Score: </span><span id="score">0</span></p>
-      <canvas id="game"></canvas>
-    </main>
-    <!-- <aside id="btm-left"><h2 id="score">0</h2></aside>
-    <aside id="btm-right"><h2 id="status">protect your yard!</h2><button id="restart">restart</button></aside>-->
+      </button></p>
+    <canvas id="game"></canvas>
+  </div>
+    
   <script src="./app.js"></script>
 </body>
 </html>
+

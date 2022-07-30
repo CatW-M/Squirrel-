@@ -35,7 +35,7 @@ p {
 #music {
   font-size: 16px;
   color: #eee;
-  position: absolute;
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(200%, 5%);
@@ -51,16 +51,10 @@ p {
   transition: all 0.4s ease-out;
 }
 
-#music.fade:hover {
-  opacity: 0.8;
+#main {
+  display: hidden;
 }
 
-.fade {
-  opacity: 0.2;
-  top: 0;
-  left: 0;
-  transform: translate(0, 0);
-}
 
 
 /* body {
