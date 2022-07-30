@@ -7,6 +7,7 @@
 //game elements
 const scoreDisplay = document.getElementById(`score`)
 let score = 0;
+const winner = document.getElementById(`win`);
 
 //game images
 let scaredImage = new Image();
@@ -15,23 +16,23 @@ scaredImage.src = "scared.png"
 //game arrays
 const boundaries = [];
 const powerSquirrel = [];
-const map = [
-  [`-`, `-`, `-`],
-  [`-`, `.`, `-`],
-  [`-`, `-`, `-`],
-]
 // const map = [
-//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
-//   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-//   ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-//   ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
-//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-//   ['-', '.', '.', '.', '-', '-', '-', '.', '-', '-', '.', '-', '-', '-', '.', '-', '.', '-'],
-//   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-', '.', '-'],
-//   ['-', 'p', '.', '.', '.', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', 'p', '-'],
-//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+//   [`-`, `-`, `-`],
+//   [`-`, `.`, `-`],
+//   [`-`, `-`, `-`],
 // ]
+const map = [
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
+  ['-', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '.', '-'],
+  ['-', 'p', '.', '.', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+]
 const pellets = [];
 
 
@@ -276,6 +277,23 @@ function rectangleCollidesWithSquare({ rectangle, square }) {
     rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width + padding
   );
 }
+// addEventListener(`resize`, function () {
+  function resizeCanvasToDisplaySize(canvas) {
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+  
+    const NeedResize = canvas.width !== displayWidth ||
+                      canvas.height !== displayHeight;
+    
+    if (NeedResize) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+    }
+  }
+  
+    // canvas.height = window.innerHeight;
+    // canvas.width = window.innerWidth;
+  // })  
 
 // test stuff
 let game_active = false;
@@ -291,9 +309,11 @@ function animate() {
   if (elapsed > fpsInterval) {
     then = now - (elapsed % fpsInterval);
   }
-
+//clear canvas for each frame
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  //resize canvas if needed
+  resizeCanvasToDisplaySize(canvas)
+  //corgi movements within boundaries
   if(keys.w.pressed && lastKey === `w`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i];
@@ -376,6 +396,7 @@ function animate() {
     corgi.velocity.y = 0;
     corgi.velocity.x = 0;
   }
+  //corgi villain collisions, render villains
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
   
@@ -389,6 +410,7 @@ function animate() {
     },
     square: villain
   })
+  //handling collisions in scared state vs normal mode
     ) if (villain.scared) {
     villains.splice(i, 1);
     let regenerate = new Villain(
@@ -416,19 +438,20 @@ function animate() {
   console.log(`You win!`);
   // alert("You win!")
   game_active = false;
+  winner.style.display = 'block';
+  restart.innerHTML = `play again`;
   let winscreen = document.createElement("div");
  
   winscreen.style.background = "red";
   winscreen.style.color = "white";
   winscreen.style.padding = '20px';
   winscreen.style.fontSize = `35px`;
-  winscreen.style.position = `absolute`;
   winscreen.style.margin= `33%`;
-  winscreen.style.top = `25%`;
+  winscreen.style.marginBottom = `75%`;
 
   winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
 
-  document.getElementById("main").appendChild(winscreen);
+  document.getElementById("win").appendChild(winscreen);
   cancelAnimationFrame(animationId)
   //future = add next level stuff here
  }
@@ -607,7 +630,6 @@ function animate() {
 
   });
 }
-// startAnimating(7); 
 
 
 //event listeners
@@ -696,13 +718,11 @@ addEventListener("keyup", ({key}) => {
   }
 });
 
-addEventListener(`resize`, function () {
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
-})  
+
 let main = document.getElementById('main');
 let splash = document.getElementById(`splash-screen`);
 let btn = document.getElementById(`start`);
+let menu = document.getElementById(`menu`);
 
 btn.addEventListener(`click`, function() {
   startAnimating(7); 
@@ -714,26 +734,45 @@ btn.addEventListener(`click`, function() {
     game_active = true;
     splash.style.display = `none`;
     main.style.display = `visible`;
+    menu.style.display = `block`;
+  
   }
 });
 
 const music = document.querySelector("#music");
 const icon = document.querySelector("#music > i");
 const audio = document.querySelector("audio");
+const pause = document.querySelector("#pause");
+const restart = document.querySelector(`#reset`);
 
 music.addEventListener("click", () => {
   if (audio.paused) {
     audio.volume = 0.2;
     audio.play();
-    icon.classList.remove('volume-up');
-    icon.classList.add('volume-mute');
+    music.innerHTML = `music off`;
     
   } else {
     audio.pause();
-    icon.classList.remove('volume-mute');
-    icon.classList.add('volume-up');
+    music.innerHTML = `music on`;
   }
   music.classList.add("fade");
+});
+
+pause.addEventListener("click", () => {
+  if (game_active) {
+   game_active = false;
+cancelAnimationFrame(animationId)
+  pause.innerHTML = `resume play`;
+    
+  } else {
+  game_active = true;
+  startAnimating(7);
+  pause.innerHTML = `pause`;
+  }
+});
+
+restart.addEventListener("click", () => {
+  window.location.reload();
 });
 
 

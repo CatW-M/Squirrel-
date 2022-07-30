@@ -1,6 +1,6 @@
-html, body {
+body {
   background-color: rgb(109, 216, 109);
-  /* overflow: hidden; */
+  overflow: hidden;
 }/*making sure game displays correctly in window*/
 
 p {
@@ -32,27 +32,69 @@ p {
   font-size: 16px;
 }
 
+canvas {
+  width: 2340px;
+  height: 1080px;
+
+}
 #music {
   font-size: 16px;
   color: #eee;
   position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(200%, 5%);
+
   width: 70px;
   padding: 15px;
   border: none;
-  border-radius: 2px;
+  border-radius: 50%;
   outline: none;
   background: rgba(9, 106, 61, 0.8);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 2px 4px rgba(222, 211, 211, 0.4);
   opacity: 0.8;
   cursor: pointer;
-  transition: all 0.4s ease-out;
+}
+#pause {
+  font-size: 16px;
+  color: #eee;
+  position: relative;
+  width: 70px;
+  padding: 15px;
+  border: none;
+  border-radius: 50%;
+  outline: none;
+  background: rgba(185, 68, 35, 0.8);
+  box-shadow: 2px 2px 4px rgba(222, 211, 211, 0.4);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+#reset {
+  font-size: 16px;
+  color: #eee;
+  position: relative;
+  width: 70px;
+  padding: 15px;
+  border: none;
+  border-radius: 50%;
+  outline: none;
+  background: rgba(22, 111, 114, 0.8);
+  box-shadow: 2px 2px 4px rgba(222, 211, 211, 0.4);
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 #main {
   display: hidden;
+}
+
+#menu {
+  display: none;
+  margin-left: 10px;
+  padding-left: 10px;
+  background-color: black;
+}
+
+#win {
+  display: none;
 }
 
 

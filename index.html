@@ -9,6 +9,15 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+  <div id="menu">
+    <p><span>Score: </span><span id="score">0</span>
+    <audio src="CorgiGameTune - 7:28:22, 7.12 PM.mp3" type="audio/mpeg" preload loop></audio>
+    <button id="music">music on</button>
+    <button id="pause">pause game</button>
+    <button id="reset">restart game</button>
+    </p>
+  </div>
+  <div id="win"></div>
   <div id="splash-screen" class="screen">
     <h1>Gumbo's Game</h1>
     <p>Instructions: Gumbo the Corgi's food was spilled by the squirrels! You must collect the spilled kibble to collect points. WASD or arrow keys may be used to move Gumbo. 
@@ -18,12 +27,8 @@
     <img src="splashgum.png" alt="">
     <img src="squirrel.png">
   </div>
-  <aside>Test</aside>
+ 
   <div id="main">
-    <p><span>Score: </span><span id="score">0</span><audio src="CorgiGameTune - 7:28:22, 7.12 PM.mp3" type="audio/mpeg" preload loop></audio>
-      <button id="music">Music
-      <i class="volume-up"></i>
-      </button></p>
     <canvas id="game"></canvas>
   </div>
     
