@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
   background-color: rgb(109, 216, 109);
   overflow: hidden;
@@ -24,12 +26,16 @@ p {
   margin: auto;
   font-family: 'Press Start 2P', monospace;
   background-color: #747b74; /* Green */
-  border: black;
-  color: darkred;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
   font-size: 16px;
+  color: rgb(3, 3, 3);
+  padding: 15px;
+  border: none;
+  border-radius: 50%;
+  outline: none;
+  background: rgba(185, 68, 35, 0.8);
+  box-shadow: 2px 2px 4px rgba(6, 5, 5, 0.4);
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 canvas {
@@ -93,70 +99,15 @@ canvas {
   background-color: black;
 }
 
+#menuright {
+  float: right;
+  background-color: black;
+}
+
 #win {
   display: none;
-}
-
-
-
-
-/* body {
-  padding-top: 1em;
-  text-align: center;
-  background-color: rgb(212, 214, 192);
-  /* background-image: url('../img/dungeonhell.png'); */
- 
-
-
-/* h1, h2 {
-  font-family: 'Press Start 2P', monospace;
-  color: rgb(45, 77, 193);
-} */
-
-
-
-/* #container {
-max-width: 50em;
-background-color: rgb(26, 71, 62);
-margin: 0 auto;
-padding: 1em;
-display: grid;
-grid-gap: 1em;
-grid-template-rows: .2fr .6fr .2fr;
-grid-template-columns: .2fr .6fr .2fr;
-grid-template-areas: "top-left top-left top-right"
-                      "game game game"
-                      "btm-left btm-right btm-right";
-}
-
-#top-left, #top-right, #btm-left, #btm-right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(109, 216, 109);
-}
-
-#top-left {
-  grid-area: top-left;
-}
-
-#top-right {
-  grid-area: top-right;
-  /* background-color: #222; */
-  /* background-image: url('../img/funky-lines.png'); */
-/* }
-
-main {
-  grid-area: game;
-}
-
-
-#btm-left {
-  grid-area: btm-left;
-  /* background-color: #222; 
-}
-
-#btm-right {
-  grid-area: btm-right;
-  /* background-color: #222; 
+  position:absolute;
+  top: 10px;
+  left: 350px;
+  background-color: darkgoldenrod;
 }

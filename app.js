@@ -197,6 +197,18 @@ const villains = [
   })
 ]
 
+let regenerate = new Villain(
+  {position: {
+      x: Boundary.width * 5 + 2,
+      y: Boundary.height + 2
+    },
+    velocity: {
+      x: Villain.speed,
+      y: 0
+    },
+    image: createImage("villain.png")
+  });
+
 //helper functions
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
@@ -399,6 +411,14 @@ function animate() {
   //corgi villain collisions, render villains
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
+  if (villain.position.x < -10 || 
+      villain.position.y > canvas.height + 10 ||
+      villain.position.x > canvas.width + 10 ||
+      villain.position.y < -10) {
+    villains.splice(i, 1);
+    villains.push(regenerate);
+  }
+
   
   if (rectangleCollidesWithSquare({
     rectangle: {
@@ -413,17 +433,7 @@ function animate() {
   //handling collisions in scared state vs normal mode
     ) if (villain.scared) {
     villains.splice(i, 1);
-    let regenerate = new Villain(
-      {position: {
-          x: Boundary.width * 5 + 2,
-          y: Boundary.height + 2
-        },
-        velocity: {
-          x: Villain.speed,
-          y: 0
-        },
-        image: createImage("villain.png")
-      });
+    
       setTimeout(() => {
         villains.push(regenerate)
       }, 8000)
@@ -442,7 +452,7 @@ function animate() {
   restart.innerHTML = `play again`;
   let winscreen = document.createElement("div");
  
-  winscreen.style.background = "red";
+
   winscreen.style.color = "white";
   winscreen.style.padding = '20px';
   winscreen.style.fontSize = `35px`;
@@ -514,7 +524,8 @@ function animate() {
   corgi.update();
 
   villains.forEach((villain) => {
-    villain.update()
+    villain.update();
+
 
  
     const collisions = []; 
@@ -589,9 +600,11 @@ function animate() {
     if (collisions.length > villain.prevCollisions.length) {
 
       villain.prevCollisions = collisions
+      console.log(`previous collisions:`)
       console.log(villain.prevCollisions)
+      console.log(`collisions`)
       console.log(collisions)
-    }
+   }
 
     if (JSON.stringify(collisions) !== JSON.stringify(villain.prevCollisions)) {
       console.log(`goooooooooo`)
