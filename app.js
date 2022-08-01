@@ -1,13 +1,21 @@
 //prepare canvas
-  const canvas = document.getElementById(`game`);
-  const ctx = canvas.getContext("2d");
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+const canvas = document.getElementById(`game`);
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
 //game elements
 const scoreDisplay = document.getElementById(`score`)
 let score = 0;
 const winner = document.getElementById(`win`);
+let main = document.getElementById('main');
+let splash = document.getElementById(`splash-screen`);
+let startBtn = document.getElementById(`start`);
+let menu = document.getElementById(`menu`);
+const music = document.querySelector("#music");
+const audio = document.querySelector("audio");
+const pause = document.querySelector("#pause");
+const restart = document.querySelector(`#reset`);
 
 //game images
 let scaredImage = new Image();
@@ -17,20 +25,22 @@ scaredImage.src = "scared.png"
 const boundaries = [];
 const powerSquirrel = [];
 // const map = [
-//   [`-`, `-`, `-`],
-//   [`-`, `.`, `-`],
-//   [`-`, `-`, `-`],
+//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
+//   ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
+//   ['-', '.', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '-', '-', '-', '.', '-'],
+//   ['-', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
+//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 // ]
 const map = [
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-  ['-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '-', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
+  ['-', '.', '.', '-', '-', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '.', '-'],
-  ['-', 'p', '.', '.', '.', '.', '.', '-', '-', '-', '-', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-'],
+  ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', 'p', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
 ]
 const pellets = [];
@@ -53,13 +63,16 @@ const keys = {
 }
 let lastKey = ``;
 
+
 //animation timing variables
 let fps, fpsInterval, startTime, now, then, elapsed;
 let animationId;
+let gameActive = false;
+
 
 //js Classes
 class Pellets {
-  constructor({position}) {
+  constructor({ position }) {
     this.position = position
     this.radius = 5
   }
@@ -72,31 +85,31 @@ class Pellets {
   }
 }
 class PowerSquirrel {
-    static width = 32
-    static height = 32
-    constructor({position, image}) {
-      this.position = position;
-      this.frameX = 0;
-      this.frameY = 0;
-      this.width = 32;
-      this.height = 32;
-      this.image = image;
-      this.moving = true;
+  static width = 32
+  static height = 32
+  constructor({ position, image }) {
+    this.position = position;
+    this.frameX = 0;
+    this.frameY = 0;
+    this.width = 32;
+    this.height = 32;
+    this.image = image;
+    this.moving = true;
+  }
+  draw() {
+    ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+  }
+  update() {
+    this.draw()
+    if (this.frameX < 7 && this.moving) {
+      this.frameX++
     }
-    draw() {
-        ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
-      }
-    update() {
-        this.draw()
-        if (this.frameX < 7 && this.moving) {
-          this.frameX++
-        } 
-    } 
+  }
 }
 class Boundary {
   static width = 75
   static height = 75
-  constructor({position, image}) {
+  constructor({ position, image }) {
     this.position = position;
     this.width = 75
     this.height = 75
@@ -107,14 +120,14 @@ class Boundary {
   }
 }
 class Player {
-  constructor({position, velocity, image}) {
+  constructor({ position, velocity, image }) {
     this.position = position
     this.velocity = velocity
     this.width = 66,
-    this.height = 72,
-    this.frameX = 0,
-    this.frameY = 0,
-    this.moving = false
+      this.height = 72,
+      this.frameX = 0,
+      this.frameY = 0,
+      this.moving = false
     this.image = image
   }
   draw() {
@@ -126,28 +139,29 @@ class Player {
     this.position.y += this.velocity.y;
     if (this.frameX < 3 && this.moving) {
       this.frameX++
-    } else {this.frameX = 0 }   
-  } 
+    } else { this.frameX = 0 }
+  }
 }
 class Villain {
   static speed = 2
-  constructor({position, velocity, image}) {
+  constructor({ position, velocity, image }) {
     this.position = position,
-    this.velocity = velocity,
-    this.width = 72,
-    this.height = 72,
-    this.frameX = 0,
-    this.frameY = 0,
-    this.moving = false,
-    this.image = image,
-    this.prevCollisions = [],
-    this.speed = 2,
-    this.scared = false
+      this.velocity = velocity,
+      this.width = 72,
+      this.height = 72,
+      this.frameX = 0,
+      this.frameY = 0,
+      this.moving = false,
+      this.image = image,
+      this.prevCollisions = [],
+      this.speed = 2,
+      this.scared = false
   }
   draw() {
     if (this.scared) {
-      ctx.drawImage(scaredImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
-      else {ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);}
+      ctx.drawImage(scaredImage, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
+    }
+    else { ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height); }
   }
   update() {
     this.draw()
@@ -155,8 +169,8 @@ class Villain {
     this.position.y += this.velocity.y;
     if (this.frameX < 3 && this.moving) {
       this.frameX++
-    } else {this.frameX = 0 }   
-  } 
+    } else { this.frameX = 0 }
+  }
 }
 
 //instances of Class objects
@@ -197,18 +211,20 @@ const villains = [
   })
 ]
 
-let regenerate = new Villain(
-  {position: {
-      x: Boundary.width * 5 + 2,
+const regenerate = () => {
+  return new Villain(
+  {
+    position: {
+      x: Boundary.width * 4 + 2,
       y: Boundary.height + 2
     },
     velocity: {
-      x: Villain.speed,
+      x: 2,
       y: 0
     },
     image: createImage("villain.png")
   });
-
+};
 //helper functions
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
@@ -216,44 +232,44 @@ map.forEach((row, i) => {
       case '-':
         boundaries.push(
           new Boundary({
-          position: {
-            x: j * Boundary.width,
-            y: i * Boundary.height
-          },
-          image: createImage("bushboundary.png")
-        })
+            position: {
+              x: j * Boundary.width,
+              y: i * Boundary.height
+            },
+            image: createImage("bushboundary.png")
+          })
         )
         break
       case '.':
-            pellets.push(
-              new Pellets({
-              position: {
-                x: j * Boundary.width + Boundary.width / 2,
-                y: i * Boundary.height + Boundary.height / 2
-              }
-            })
-            )
-            break
+        pellets.push(
+          new Pellets({
+            position: {
+              x: j * Boundary.width + Boundary.width / 2,
+              y: i * Boundary.height + Boundary.height / 2
+            }
+          })
+        )
+        break
       case 'p':
-          powerSquirrel.push(
-                new PowerSquirrel({
-                position: {
-                  x: j * Boundary.width + 15,
-                  y: i * Boundary.height + 15
-                },
-                image: createImage("squirrel.png")
-              })
-              )
-              break
+        powerSquirrel.push(
+          new PowerSquirrel({
+            position: {
+              x: j * Boundary.width + 15,
+              y: i * Boundary.height + 15
+            },
+            image: createImage("squirrel.png")
+          })
+        )
+        break
     }
   })
 })
 
 function createImage(src) {
   const image = new Image()
-    image.src = src;
-    return image
-  
+  image.src = src;
+  return image
+
 }
 
 function startAnimating(fps) {
@@ -265,68 +281,60 @@ function startAnimating(fps) {
 }
 function rectangleCircleColliding({
   circle,
-  rectangle}){
-  let distX = Math.abs(circle.position.x - rectangle.position.x - rectangle.width/2);
-  let distY = Math.abs(circle.position.y - rectangle.position.y - rectangle.height/2);
+  rectangle }) {
+  let distX = Math.abs(circle.position.x - rectangle.position.x - rectangle.width / 2);
+  let distY = Math.abs(circle.position.y - rectangle.position.y - rectangle.height / 2);
 
   if (distX > (rectangle.width / 2 + circle.radius)) { return false; }
   if (distY > (rectangle.height / 2 + circle.radius)) { return false; }
 
-  if (distX <= (rectangle.width / 2)) { return true; } 
+  if (distX <= (rectangle.width / 2)) { return true; }
   if (distY <= (rectangle.height / 2)) { return true; }
 
-  let dx=distX-rectangle.width / 2;
-  let dy=distY-rectangle.height / 2;
-  return (dx*dx+dy*dy<=(circle.radius * circle.radius));
+  let dx = distX - rectangle.width / 2;
+  let dy = distY - rectangle.height / 2;
+  return (dx * dx + dy * dy <= (circle.radius * circle.radius));
 }
 
 function rectangleCollidesWithSquare({ rectangle, square }) {
-  const padding = 0
+  const padding = 0;
   return (
-    rectangle.position.y + rectangle.velocity.y <= square.position.y + square.height + padding &&
-    rectangle.position.y + rectangle.height + rectangle.velocity.y >= square.position.y - padding &&
-    rectangle.position.x + rectangle.width + rectangle.velocity.x >= square.position.x - padding &&
-    rectangle.position.x + rectangle.velocity.x <= square.position.x + square.width + padding
+    (rectangle.position.y + rectangle.velocity.y) <= (square.position.y + square.height + padding) &&
+    (rectangle.position.y + rectangle.height + rectangle.velocity.y) >= (square.position.y - padding) &&
+    (rectangle.position.x + rectangle.width + rectangle.velocity.x) >= (square.position.x - padding) &&
+    (rectangle.position.x + rectangle.velocity.x) <= (square.position.x + square.width + padding)
   );
 }
-// addEventListener(`resize`, function () {
-  function resizeCanvasToDisplaySize(canvas) {
-    const displayWidth = canvas.clientWidth;
-    const displayHeight = canvas.clientHeight;
-  
-    const NeedResize = canvas.width !== displayWidth ||
-                      canvas.height !== displayHeight;
-    
-    if (NeedResize) {
-      canvas.width = displayWidth;
-      canvas.height = displayHeight;
-    }
-  }
-  
-    // canvas.height = window.innerHeight;
-    // canvas.width = window.innerWidth;
-  // })  
+function resizeCanvasToDisplaySize(canvas) {
+  const displayWidth = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
 
-// test stuff
-let game_active = false;
+  const NeedResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
+  if (NeedResize) {
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+  }
+}
+
+
 
 //gameloop
 
 function animate() {
 
- animationId = requestAnimationFrame(animate);
+  animationId = requestAnimationFrame(animate);
   now = Date.now();
   elapsed = now - then;
 
   if (elapsed > fpsInterval) {
     then = now - (elapsed % fpsInterval);
   }
-//clear canvas for each frame
+  //clear canvas for each frame
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //resize canvas if needed
   resizeCanvasToDisplaySize(canvas)
   //corgi movements within boundaries
-  if(keys.w.pressed && lastKey === `w`) {
+  if (keys.w.pressed && lastKey === `w`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i];
       if (rectangleCollidesWithSquare({
@@ -345,7 +353,7 @@ function animate() {
         corgi.velocity.y = -5
       }
     }
-  } else if(keys.a.pressed && lastKey === `a`) {
+  } else if (keys.a.pressed && lastKey === `a`) {
 
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
@@ -370,13 +378,13 @@ function animate() {
       const boundary = boundaries[i]
       if (
         rectangleCollidesWithSquare({
-        rectangle: {
-          ...corgi, velocity: {
-            x: 0,
-            y: 5
-          }
-        },
-        square: boundary
+          rectangle: {
+            ...corgi, velocity: {
+              x: 0,
+              y: 5
+            }
+          },
+          square: boundary
         })
       ) {
         corgi.velocity.y = 0
@@ -409,62 +417,67 @@ function animate() {
     corgi.velocity.x = 0;
   }
   //corgi villain collisions, render villains
+  // if (villains == `undefined`) {
+  //   villains.push(regenerate());
+
+  // }
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
-  if (villain.position.x < -10 || 
+    if (villain.position.x < -10 ||
       villain.position.y > canvas.height + 10 ||
       villain.position.x > canvas.width + 10 ||
       villain.position.y < -10) {
-    villains.splice(i, 1);
-    villains.push(regenerate);
-  }
-
-  
-  if (rectangleCollidesWithSquare({
-    rectangle: {
-      ...corgi,
-      velocity: {
-        x: corgi.velocity.x,
-        y: corgi.velocity.y
-      }
-    },
-    square: villain
-  })
-  //handling collisions in scared state vs normal mode
-    ) if (villain.scared) {
-    villains.splice(i, 1);
-    
+      villains.splice(i, 1);
       setTimeout(() => {
-        villains.push(regenerate)
+        villains.push(regenerate())
+      }, 3000);
+    
+    }
+
+
+    if (rectangleCollidesWithSquare({
+      rectangle: {
+        ...corgi,
+        velocity: {
+          x: corgi.velocity.x,
+          y: corgi.velocity.y
+        }
+      },
+      square: villain
+    })
+      //handling collisions in scared state vs normal mode
+    ) if (villain.scared) {
+      villains.splice(i, 1);
+
+      setTimeout(() => {
+        villains.push(regenerate())
       }, 8000)
-    //set interval and create new instance of villain/push into villains array
-  } else {
-    cancelAnimationFrame(animationId)
-    alert("The stranger got you! You lose.")
+      //set interval and create new instance of villain/push into villains array
+    } else {
+        cancelAnimationFrame(animationId)
+        alert("The stranger got you! You lose.")
+      }
   }
- }
- //win condition 
- if (pellets.length === 0 && game_active) {
-  console.log(`You win!`);
-  // alert("You win!")
-  game_active = false;
-  winner.style.display = 'block';
-  restart.innerHTML = `play again`;
-  let winscreen = document.createElement("div");
- 
+  //win condition 
+  if (pellets.length === 0 && gameActive) {
+    gameActive = false;
+    winner.style.display = 'block';
+    restart.innerHTML = `play again`;
+    let winscreen = document.createElement("div");
 
-  winscreen.style.color = "white";
-  winscreen.style.padding = '20px';
-  winscreen.style.fontSize = `35px`;
-  winscreen.style.margin= `33%`;
-  winscreen.style.marginBottom = `75%`;
 
-  winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
+    winscreen.style.color = "white";
+    winscreen.style.padding = '20px';
+    winscreen.style.fontSize = `35px`;
+    winscreen.style.margin = `33%`;
+    winscreen.style.marginBottom = `75%`;
 
-  document.getElementById("win").appendChild(winscreen);
-  cancelAnimationFrame(animationId)
-  //future = add next level stuff here
- }
+    winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
+
+    document.getElementById("win").appendChild(winscreen);
+    cancelAnimationFrame(animationId)
+    //future = add next level stuff here
+  }
 
   for (let i = powerSquirrel.length - 1; 0 <= i; i--) {
     const powerUp = powerSquirrel[i];
@@ -490,24 +503,24 @@ function animate() {
           villain.scared = false
         }, 5000)
       })
-      }
     }
+  }
 
 
   for (let i = pellets.length - 1; 0 <= i; i--) {
-      const pellet = pellets[i]
-      pellet.draw();
-      if (rectangleCircleColliding({
-        circle: pellet,
-        rectangle: corgi
-      })
-      ) {
-        pellets.splice(i, 1)
-        score += 10
-        scoreDisplay.innerHTML = score
-      }
+    const pellet = pellets[i]
+    pellet.draw();
+    if (rectangleCircleColliding({
+      circle: pellet,
+      rectangle: corgi
+    })
+    ) {
+      pellets.splice(i, 1)
+      score += 10
+      scoreDisplay.innerHTML = score
+    }
   }
-  
+
   boundaries.forEach((boundary) => {
     boundary.draw();
     if (
@@ -520,18 +533,19 @@ function animate() {
       corgi.velocity.x = 0
     }
   });
-  
+
   corgi.update();
 
+  //stranger movement logic
   villains.forEach((villain) => {
+  //drawing villains
     villain.update();
-
-
- 
-    const collisions = []; 
+    //array to keep track of collisions
+    const collisions = [];
+    //test whether villain is colliding with boundaries
     boundaries.forEach(boundary => {
 
-      // right collision
+      // test for collision if villain were to move right
       const right_collision = rectangleCollidesWithSquare({
         rectangle: {
           ...villain,
@@ -542,16 +556,16 @@ function animate() {
         },
         square: boundary
       });
-     
-
+      //if a collision were to occur and this direction is not already in our array,
+      // push right into collisions array
       if (!collisions.includes(`right`) && right_collision) {
         collisions.push(`right`);
-      } 
+      }
 
-      // left collision
+      // test for collision if villain were to move left 
       const left_collision = rectangleCollidesWithSquare({
         rectangle: {
-          ...villain, 
+          ...villain,
           velocity: {
             x: -villain.speed,
             y: 0
@@ -561,13 +575,13 @@ function animate() {
       });
 
       if (!collisions.includes(`left`) && left_collision) {
-        collisions.push(`left`) 
+        collisions.push(`left`)
       }
 
       // up collision
       const up_collision = rectangleCollidesWithSquare({
         rectangle: {
-          ...villain, 
+          ...villain,
           velocity: {
             x: 0,
             y: -villain.speed
@@ -583,7 +597,7 @@ function animate() {
       // down collision
       const down_collision = rectangleCollidesWithSquare({
         rectangle: {
-          ...villain, 
+          ...villain,
           velocity: {
             x: 0,
             y: villain.speed
@@ -591,7 +605,7 @@ function animate() {
         },
         square: boundary
       });
-//pushing down here not sure why
+      //pushing down here not sure why
       if (!collisions.includes(`down`) && down_collision) {
         collisions.push(`down`);
       }
@@ -600,25 +614,23 @@ function animate() {
     if (collisions.length > villain.prevCollisions.length) {
 
       villain.prevCollisions = collisions
-      console.log(`previous collisions:`)
-      console.log(villain.prevCollisions)
-      console.log(`collisions`)
-      console.log(collisions)
-   }
+      // console.log(`previous collisions:`)
+      // console.log(villain.prevCollisions)
+      // console.log(`collisions`)
+      // console.log(collisions)
+    }
 
     if (JSON.stringify(collisions) !== JSON.stringify(villain.prevCollisions)) {
-      console.log(`goooooooooo`)
-      
+
       if (villain.velocity.x > 0) { villain.prevCollisions.push(`right`) }
-      else if (villain.velocity.x < 0) { villain.prevCollisions.push(`left`)}
-      else if (villain.velocity.y < 0) { villain.prevCollisions.push(`up`)}
-      else if (villain.velocity.y > 0) {villain.prevCollisions.push(`down`)}
-        
+      else if (villain.velocity.x < 0) { villain.prevCollisions.push(`left`) }
+      else if (villain.velocity.y < 0) { villain.prevCollisions.push(`up`) }
+      else if (villain.velocity.y > 0) { villain.prevCollisions.push(`down`) }
+
       const pathways = villain.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
       })
-  
-      console.log({pathways});
+
       const direction = pathways[Math.floor(Math.random() * pathways.length)]
       switch (direction) {
         case `down`:
@@ -636,8 +648,13 @@ function animate() {
         case `left`:
           villain.velocity.x = -villain.speed
           villain.velocity.y = 0
-          break  
+          break
+        default:
+          villain.velocity.x = -1 * villain.velocity.x
+          villain.velocity.y = -1 * villain.velocity.y
+          break
       }
+      console.log(direction);
       villain.prevCollisions = [];
     }
 
@@ -646,7 +663,7 @@ function animate() {
 
 
 //event listeners
-addEventListener("keydown", ({key}) => {
+addEventListener("keydown", ({ key }) => {
   corgi.moving = true;
   switch (key) {
     case `ArrowUp`:
@@ -669,12 +686,12 @@ addEventListener("keydown", ({key}) => {
       lastKey = `s`
       corgi.frameY = 0;
       break
-    case `ArrowLeft`: 
+    case `ArrowLeft`:
       keys.a.pressed = true
       lastKey = `a`
       corgi.frameY = 1;
       break
-    case `a`: 
+    case `a`:
       keys.a.pressed = true
       lastKey = `a`
       corgi.frameY = 1;
@@ -692,7 +709,7 @@ addEventListener("keydown", ({key}) => {
   }
 });
 
-addEventListener("keyup", ({key}) => {
+addEventListener("keyup", ({ key }) => {
   corgi.moving = false;
   switch (key) {
     case `ArrowUp`:
@@ -711,12 +728,12 @@ addEventListener("keyup", ({key}) => {
       keys.s.pressed = false
       corgi.frameY = 0;
       break
-    case `ArrowLeft`: 
+    case `ArrowLeft`:
       keys.a.pressed = false
       corgi.frameY = 1;
       console.log(`up!!!`)
       break
-    case `a`: 
+    case `a`:
       keys.a.pressed = false
       corgi.frameY = 1;
       break
@@ -731,39 +748,27 @@ addEventListener("keyup", ({key}) => {
   }
 });
 
-
-let main = document.getElementById('main');
-let splash = document.getElementById(`splash-screen`);
-let btn = document.getElementById(`start`);
-let menu = document.getElementById(`menu`);
-
-btn.addEventListener(`click`, function() {
-  startAnimating(7); 
+startBtn.addEventListener(`click`, function () {
+  startAnimating(7);
   if (splash.style.display === `none`) {
     splash.style.display = `block`;
-    game_active = false;
-   
+    gameActive = false;
+
   } else {
-    game_active = true;
+    gameActive = true;
     splash.style.display = `none`;
     main.style.display = `visible`;
     menu.style.display = `block`;
-  
+
   }
 });
-
-const music = document.querySelector("#music");
-const icon = document.querySelector("#music > i");
-const audio = document.querySelector("audio");
-const pause = document.querySelector("#pause");
-const restart = document.querySelector(`#reset`);
 
 music.addEventListener("click", () => {
   if (audio.paused) {
     audio.volume = 0.2;
     audio.play();
     music.innerHTML = `music off`;
-    
+
   } else {
     audio.pause();
     music.innerHTML = `music on`;
@@ -772,15 +777,15 @@ music.addEventListener("click", () => {
 });
 
 pause.addEventListener("click", () => {
-  if (game_active) {
-   game_active = false;
-cancelAnimationFrame(animationId)
-  pause.innerHTML = `resume play`;
-    
+  if (gameActive) {
+    gameActive = false;
+    cancelAnimationFrame(animationId)
+    pause.innerHTML = `resume play`;
+
   } else {
-  game_active = true;
-  startAnimating(7);
-  pause.innerHTML = `pause`;
+    gameActive = true;
+    startAnimating(7);
+    pause.innerHTML = `pause`;
   }
 });
 
