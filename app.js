@@ -23,25 +23,26 @@ scaredImage.src = "scared.png"
 
 //game arrays
 const boundaries = [];
+const fences = [];
 const powerSquirrel = [];
 // const map = [
 //   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
 //   ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-//   ['-', '.', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '-', '-', '-', '.', '-'],
-//   ['-', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
+//   ['-', '.', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '-', '-', '-', '.', 'f'],
+//   ['-', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'f'],
 //   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 // ]
 const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-'],
-  ['-', '.', '.', '-', '-', '.', '.', '-', '-', '-', '-', '.', '.', '.', '-', '-', '.', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-'],
-  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-'],
-  ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', 'p', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-']
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-', '-'],
+  ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '-'],
+  ['-', '.', '.', '-', '-', '.', '.', '-', 'f', 'f', '-', '.', '.', '.', '-', '-', '.', '.', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '-', ' ', ' ', '-', '.', '-', '.', '.', '.', '.', '.', '-'],
+  ['-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '-'],
+  ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', 'p', '-', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-']
 ]
 const pellets = [];
 
@@ -109,6 +110,17 @@ class PowerSquirrel {
 class Boundary {
   static width = 75
   static height = 75
+  constructor({ position, image }) {
+    this.position = position;
+    this.width = 75
+    this.height = 75
+    this.image = image
+  }
+  draw() {
+    ctx.drawImage(this.image, this.position.x, this.position.y);
+  }
+}
+class Fence {
   constructor({ position, image }) {
     this.position = position;
     this.width = 75
@@ -189,23 +201,23 @@ let corgi = new Player({
 const villains = [
   new Villain({
     position: {
-      x: Boundary.width * 5 + 2,
-      y: Boundary.height + 2
+      x: Boundary.width * 8 + 2,
+      y: Boundary.height * 5 + 2
     },
     velocity: {
-      x: Villain.speed,
-      y: 0
+      x: 0,
+      y: -Villain.speed
     },
     image: createImage("villain.png")
   }),
   new Villain({
     position: {
-      x: Boundary.width + 2,
+      x: Boundary.width * 9 + 2,
       y: Boundary.height * 5 + 2
     },
     velocity: {
-      x: Villain.speed,
-      y: 0
+      x: 0,
+      y: -Villain.speed
     },
     image: createImage("villain.png")
   })
@@ -225,45 +237,59 @@ const regenerate = () => {
     image: createImage("villain.png")
   });
 };
+
 //helper functions
 map.forEach((row, i) => {
   row.forEach((symbol, j) => {
     switch (symbol) {
       case '-':
-        boundaries.push(
-          new Boundary({
-            position: {
-              x: j * Boundary.width,
-              y: i * Boundary.height
-            },
-            image: createImage("bushboundary.png")
-          })
-        )
-        break
+      boundaries.push(
+        new Boundary({
+        position: {
+          x: j * Boundary.width,
+          y: i * Boundary.height
+        },
+        image: createImage("bushboundary.png")
+        })
+      )
+      break
       case '.':
-        pellets.push(
-          new Pellets({
-            position: {
-              x: j * Boundary.width + Boundary.width / 2,
-              y: i * Boundary.height + Boundary.height / 2
-            }
+      pellets.push(
+        new Pellets({
+        position: {
+          x: j * Boundary.width + Boundary.width / 2,
+          y: i * Boundary.height + Boundary.height / 2
+        }
+        })
+      )
+      break
+      case 'f':
+        fences.push(
+          new Fence({
+          position: {
+            x: j * Boundary.width,
+            y: i * Boundary.height
+          },
+          image: createImage(`whitefencexaxis.png`)
           })
         )
         break
       case 'p':
-        powerSquirrel.push(
-          new PowerSquirrel({
-            position: {
-              x: j * Boundary.width + 15,
-              y: i * Boundary.height + 15
-            },
-            image: createImage("squirrel.png")
-          })
-        )
-        break
+      powerSquirrel.push(
+        new PowerSquirrel({
+        position: {
+          x: j * Boundary.width + Boundary.width / 2,
+          y: i * Boundary.height + Boundary.height / 2
+        },
+        image: createImage("squirrel.png")
+        })
+      )
+      break
+     
     }
   })
 })
+
 
 function createImage(src) {
   const image = new Image()
@@ -276,9 +302,9 @@ function startAnimating(fps) {
   fpsInterval = 1000 / fps;
   then = Date.now();
   startTime = then;
-
   animate();
 }
+
 function rectangleCircleColliding({
   circle,
   rectangle }) {
@@ -320,8 +346,9 @@ function resizeCanvasToDisplaySize(canvas) {
 
 //gameloop
 
-function animate() {
 
+function animate() {
+  //variable to store current frame for pause/restart
   animationId = requestAnimationFrame(animate);
   now = Date.now();
   elapsed = now - then;
@@ -333,7 +360,9 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //resize canvas if needed
   resizeCanvasToDisplaySize(canvas)
-  //corgi movements within boundaries
+  
+  // corgi movements within boundaries
+ 
   if (keys.w.pressed && lastKey === `w`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i];
@@ -416,11 +445,7 @@ function animate() {
     corgi.velocity.y = 0;
     corgi.velocity.x = 0;
   }
-  //corgi villain collisions, render villains
-  // if (villains == `undefined`) {
-  //   villains.push(regenerate());
-
-  // }
+ 
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
     if (villain.position.x < -10 ||
@@ -520,7 +545,19 @@ function animate() {
       scoreDisplay.innerHTML = score
     }
   }
-
+  fences.forEach((fence) => {
+    fence.draw();
+    if (
+      rectangleCollidesWithSquare({
+        rectangle: corgi,
+        square: fence
+      })
+    ) {
+      corgi.velocity.y = 0
+      corgi.velocity.x = 0
+    }
+  });
+  
   boundaries.forEach((boundary) => {
     boundary.draw();
     if (
@@ -533,8 +570,9 @@ function animate() {
       corgi.velocity.x = 0
     }
   });
-
+  
   corgi.update();
+
 
   //stranger movement logic
   villains.forEach((villain) => {
