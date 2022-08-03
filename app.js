@@ -155,7 +155,7 @@ class Player {
   }
 }
 class Villain {
-  static speed = 5
+  static speed = 3
   constructor({ position, velocity, image }) {
     this.position = position,
       this.velocity = velocity,
@@ -166,7 +166,7 @@ class Villain {
       this.moving = false,
       this.image = image,
       this.prevCollisions = [],
-      this.speed = 2,
+      this.speed = 3,
       this.scared = false
   }
   draw() {
@@ -470,16 +470,16 @@ function animate() {
  
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
-    if (villain.position.x < -10 ||
-      villain.position.y > canvas.height + 10 ||
-      villain.position.x > canvas.width + 10 ||
-      villain.position.y < -10) {
-      villains.splice(i, 1);
-      setTimeout(() => {
-        villains.push(regenerate())
-      }, 3000);
+    // if (villain.position.x < -10 ||
+    //   villain.position.y > canvas.height + 10 ||
+    //   villain.position.x > canvas.width + 10 ||
+    //   villain.position.y < -10) {
+    //   villains.splice(i, 1);
+    //   setTimeout(() => {
+    //     villains.push(regenerate())
+    //   }, 3000);
     
-    }
+    // }
 
 
     if (rectangleCollidesWithSquare({
