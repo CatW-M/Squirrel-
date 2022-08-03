@@ -34,14 +34,14 @@ const powerSquirrel = [];
 // ]
 const map = [
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-'],
-  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-', '-'],
-  ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '-', '-'],
-  ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '-'],
+  ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
+  ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '.', '-'],
+  ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-'],
   ['-', '.', '.', '-', '-', '.', '.', '-', 'f', 'f', '-', '.', '.', '.', '-', '-', '.', '.', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '-', ' ', ' ', '-', '.', '-', '.', '.', '.', '.', '.', '-'],
-  ['-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-'],
-  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '-', '-'],
-  ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', 'p', '-', '-'],
+  ['-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '.', '-'],
+  ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-'],
+  ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', '.', 'p', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-']
 ]
 const pellets = [];
@@ -155,7 +155,7 @@ class Player {
   }
 }
 class Villain {
-  static speed = 2
+  static speed = 5
   constructor({ position, velocity, image }) {
     this.position = position,
       this.velocity = velocity,
@@ -212,6 +212,28 @@ const villains = [
   }),
   new Villain({
     position: {
+      x: Boundary.width * 8 + 2,
+      y: Boundary.height * 5 + 2
+    },
+    velocity: {
+      x: 0,
+      y: -Villain.speed
+    },
+    image: createImage("villain.png")
+  }),
+  new Villain({
+    position: {
+      x: Boundary.width * 9 + 2,
+      y: Boundary.height * 5 + 2
+    },
+    velocity: {
+      x: 0,
+      y: -Villain.speed
+    },
+    image: createImage("villain.png")
+  }),
+  new Villain({
+    position: {
       x: Boundary.width * 9 + 2,
       y: Boundary.height * 5 + 2
     },
@@ -227,12 +249,12 @@ const regenerate = () => {
   return new Villain(
   {
     position: {
-      x: Boundary.width * 4 + 2,
-      y: Boundary.height + 2
+      x: Boundary.width * 8 + 2,
+      y: Boundary.height * 5 + 2
     },
     velocity: {
-      x: 2,
-      y: 0
+      x: 0,
+      y: -Villain.speed
     },
     image: createImage("villain.png")
   });
@@ -643,20 +665,11 @@ function animate() {
         },
         square: boundary
       });
-      //pushing down here not sure why
+     
       if (!collisions.includes(`down`) && down_collision) {
         collisions.push(`down`);
       }
     });
-
-    if (collisions.length > villain.prevCollisions.length) {
-
-      villain.prevCollisions = collisions
-      // console.log(`previous collisions:`)
-      // console.log(villain.prevCollisions)
-      // console.log(`collisions`)
-      // console.log(collisions)
-    }
 
     if (JSON.stringify(collisions) !== JSON.stringify(villain.prevCollisions)) {
 
@@ -664,38 +677,44 @@ function animate() {
       else if (villain.velocity.x < 0) { villain.prevCollisions.push(`left`) }
       else if (villain.velocity.y < 0) { villain.prevCollisions.push(`up`) }
       else if (villain.velocity.y > 0) { villain.prevCollisions.push(`down`) }
-
+      
       const pathways = villain.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
       })
-
-      const direction = pathways[Math.floor(Math.random() * pathways.length)]
-      switch (direction) {
-        case `down`:
-          villain.velocity.x = 0
-          villain.velocity.y = villain.speed
-          break
-        case `up`:
-          villain.velocity.x = 0
-          villain.velocity.y = -villain.speed
-          break
-        case `right`:
-          villain.velocity.x = villain.speed
-          villain.velocity.y = 0
-          break
-        case `left`:
-          villain.velocity.x = -villain.speed
-          villain.velocity.y = 0
-          break
-        default:
-          villain.velocity.x = -1 * villain.velocity.x
-          villain.velocity.y = -1 * villain.velocity.y
-          break
+        console.log({pathways})
+      if (pathways.length > 0) {
+        const direction = pathways[Math.floor(Math.random() * pathways.length)]
+        console.log({direction});
+        switch (direction) {
+          case `down`:
+            villain.velocity.x = 0
+            villain.velocity.y = villain.speed
+            break
+          case `up`:
+            villain.velocity.x = 0
+            villain.velocity.y = -villain.speed
+            break
+          case `right`:
+            villain.velocity.x = villain.speed
+            villain.velocity.y = 0
+            break
+          case `left`:
+            villain.velocity.x = -villain.speed
+            villain.velocity.y = 0
+            break
+          // default:
+          //   villain.velocity.x = -1 * villain.velocity.x
+          //   villain.velocity.y = -1 * villain.velocity.y
+          //   break
+        }
+      } else {
+        villain.velocity.x = -1 * villain.velocity.x;
+        villain.velocity.y = -1 * villain.velocity.y;
       }
-      console.log(direction);
-      villain.prevCollisions = [];
+      villain.prevCollisions = collisions;
+    } else {
+      console.log(`else`);
     }
-
   });
 }
 
@@ -787,7 +806,7 @@ addEventListener("keyup", ({ key }) => {
 });
 
 startBtn.addEventListener(`click`, function () {
-  startAnimating(7);
+  startAnimating(5);
   if (splash.style.display === `none`) {
     splash.style.display = `block`;
     gameActive = false;
@@ -822,7 +841,7 @@ pause.addEventListener("click", () => {
 
   } else {
     gameActive = true;
-    startAnimating(7);
+    startAnimating(22);
     pause.innerHTML = `pause`;
   }
 });
