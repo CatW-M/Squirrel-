@@ -16,7 +16,7 @@ For the first project, we were given the following parameters:
 
 ## Wireframe
 ---
-![Wireframe](Wireframe1.png)
+![Wireframe](mediafiles/Wireframe1.png)
 
 ## Technologies Used
 ----
@@ -142,8 +142,8 @@ Audio was added to augment user experience. A toggle button was added to the men
 
 ## Screenshots from Game
 ---
-![Start Screen](splashscreen.png)
+![Start Screen](mediafiles/splashscreen.png)
 
-![Game in Progress](gameshotgumbo.png)
+![Game in Progress](mediafiles/gameshotgumbo.png)
 
 ---

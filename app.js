@@ -19,7 +19,7 @@ const restart = document.querySelector(`#reset`);
 
 //game images
 let scaredImage = new Image();
-scaredImage.src = "scared.png"
+scaredImage.src = "mediafiles/scared.png"
 
 //game arrays
 const boundaries = [];
@@ -195,7 +195,7 @@ let corgi = new Player({
     x: 0,
     y: 0
   },
-  image: createImage("corgi (2).png")
+  image: createImage("mediafiles/corgi.png")
 });
 
 const villains = [
@@ -208,7 +208,7 @@ const villains = [
       x: 0,
       y: -Villain.speed
     },
-    image: createImage("villain.png")
+    image: createImage("mediafiles/villain.png")
   }),
   new Villain({
     position: {
@@ -219,7 +219,7 @@ const villains = [
       x: 0,
       y: -Villain.speed
     },
-    image: createImage("villain.png")
+    image: createImage("mediafiles/villain.png")
   }),
   new Villain({
     position: {
@@ -230,7 +230,7 @@ const villains = [
       x: 0,
       y: -Villain.speed
     },
-    image: createImage("villain.png")
+    image: createImage("mediafiles/villain.png")
   }),
   new Villain({
     position: {
@@ -241,7 +241,7 @@ const villains = [
       x: 0,
       y: -Villain.speed
     },
-    image: createImage("villain.png")
+    image: createImage("mediafiles/villain.png")
   })
 ]
 
@@ -256,7 +256,7 @@ const regenerate = () => {
       x: 0,
       y: -Villain.speed
     },
-    image: createImage("villain.png")
+    image: createImage("mediafiles/villain.png")
   });
 };
 
@@ -271,7 +271,7 @@ map.forEach((row, i) => {
           x: j * Boundary.width,
           y: i * Boundary.height
         },
-        image: createImage("bushboundary.png")
+        image: createImage("mediafiles/bushboundary.png")
         })
       )
       break
@@ -292,7 +292,7 @@ map.forEach((row, i) => {
             x: j * Boundary.width,
             y: i * Boundary.height
           },
-          image: createImage(`whitefencexaxis.png`)
+          image: createImage(`mediafiles/whitefencexaxis.png`)
           })
         )
         break
@@ -303,7 +303,7 @@ map.forEach((row, i) => {
           x: j * Boundary.width + Boundary.width / 2,
           y: i * Boundary.height + Boundary.height / 2
         },
-        image: createImage("squirrel.png")
+        image: createImage("mediafiles/squirrel.png")
         })
       )
       break
@@ -707,11 +707,7 @@ function animate() {
           //   villain.velocity.y = -1 * villain.velocity.y
           //   break
         }
-      } else {
-        villain.velocity.x = -1 * villain.velocity.x;
-        villain.velocity.y = -1 * villain.velocity.y;
-      }
-      villain.prevCollisions = collisions;
+      
     } else {
       console.log(`else`);
     }
