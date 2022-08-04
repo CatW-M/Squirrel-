@@ -25,13 +25,6 @@ scaredImage.src = "mediafiles/scared.png"
 const boundaries = [];
 const fences = [];
 const powerSquirrel = [];
-// const map = [
-//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-'],
-//   ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
-//   ['-', '.', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '-', '-', '-', '.', 'f'],
-//   ['-', '.', '.', '.', '-', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'f'],
-//   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-// ]
 const map = [
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
@@ -43,7 +36,7 @@ const map = [
   ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-'],
   ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', '.', 'p', '-'],
   ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-']
-]
+];
 const pellets = [];
 
 
@@ -74,8 +67,8 @@ let gameActive = false;
 //js Classes
 class Pellets {
   constructor({ position }) {
-    this.position = position
-    this.radius = 5
+    this.position = position;
+    this.radius = 5;
   }
   draw() {
     ctx.beginPath()
@@ -86,8 +79,8 @@ class Pellets {
   }
 }
 class PowerSquirrel {
-  static width = 32
-  static height = 32
+  static width = 32;
+  static height = 32;
   constructor({ position, image }) {
     this.position = position;
     this.frameX = 0;
@@ -108,13 +101,13 @@ class PowerSquirrel {
   }
 }
 class Boundary {
-  static width = 75
-  static height = 75
+  static width = 75;
+  static height = 75;
   constructor({ position, image }) {
     this.position = position;
-    this.width = 75
-    this.height = 75
-    this.image = image
+    this.width = 75;
+    this.height = 75;
+    this.image = image;
   }
   draw() {
     ctx.drawImage(this.image, this.position.x, this.position.y);
@@ -123,9 +116,9 @@ class Boundary {
 class Fence {
   constructor({ position, image }) {
     this.position = position;
-    this.width = 75
-    this.height = 75
-    this.image = image
+    this.width = 75;
+    this.height = 75;
+    this.image = image;
   }
   draw() {
     ctx.drawImage(this.image, this.position.x, this.position.y);
@@ -133,41 +126,41 @@ class Fence {
 }
 class Player {
   constructor({ position, velocity, image }) {
-    this.position = position
-    this.velocity = velocity
-    this.width = 66,
-      this.height = 72,
-      this.frameX = 0,
-      this.frameY = 0,
-      this.moving = false
-    this.image = image
+    this.position = position;
+    this.velocity = velocity;
+    this.width = 66;
+    this.height = 72;
+    this.frameX = 0;
+    this.frameY = 0;
+    this.moving = false;
+    this.image = image;
   }
   draw() {
     ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height);
   }
   update() {
     this.draw()
-    this.position.x += this.velocity.x
+    this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
     if (this.frameX < 3 && this.moving) {
-      this.frameX++
+      this.frameX++;
     } else { this.frameX = 0 }
   }
 }
 class Villain {
-  static speed = 3
+  static speed = 3;
   constructor({ position, velocity, image }) {
-    this.position = position,
-      this.velocity = velocity,
-      this.width = 72,
-      this.height = 72,
-      this.frameX = 0,
-      this.frameY = 0,
-      this.moving = false,
-      this.image = image,
-      this.prevCollisions = [],
-      this.speed = 3,
-      this.scared = false
+    this.position = position;
+      this.velocity = velocity;
+      this.width = 72;
+      this.height = 72;
+      this.frameX = 0;
+      this.frameY = 0;
+      this.moving = false;
+      this.image = image;
+      this.prevCollisions = [];
+      this.speed = 3;
+      this.scared = false;
   }
   draw() {
     if (this.scared) {
@@ -176,12 +169,12 @@ class Villain {
     else { ctx.drawImage(this.image, this.width * this.frameX, this.height * this.frameY, this.width, this.height, this.position.x, this.position.y, this.width, this.height); }
   }
   update() {
-    this.draw()
-    this.position.x += this.velocity.x
+    this.draw();
+    this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
     if (this.frameX < 3 && this.moving) {
-      this.frameX++
-    } else { this.frameX = 0 }
+      this.frameX++;
+    } else { this.frameX = 0; }
   }
 }
 
@@ -314,10 +307,9 @@ map.forEach((row, i) => {
 
 
 function createImage(src) {
-  const image = new Image()
+  const image = new Image();
   image.src = src;
-  return image
-
+  return image;
 }
 
 function startAnimating(fps) {
@@ -508,17 +500,14 @@ function animate() {
   //win condition 
   if (pellets.length === 0 && gameActive) {
     gameActive = false;
-    winner.style.display = 'block';
+    winner.style.display = 'inline-block';
     restart.innerHTML = `play again`;
     let winscreen = document.createElement("div");
-
-
     winscreen.style.color = "white";
     winscreen.style.padding = '20px';
     winscreen.style.fontSize = `35px`;
     winscreen.style.margin = `33%`;
     winscreen.style.marginBottom = `75%`;
-
     winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
 
     document.getElementById("win").appendChild(winscreen);
@@ -544,10 +533,10 @@ function animate() {
       //make strangers scared
 
       villains.forEach((villain) => {
-        villain.scared = true
+        villain.scared = true;
 
         setTimeout(() => {
-          villain.scared = false
+          villain.scared = false;
         }, 5000)
       })
     }
@@ -600,7 +589,7 @@ function animate() {
   villains.forEach((villain) => {
   //drawing villains
     villain.update();
-    //array to keep track of collisions
+    //array to keep track of current collisions
     const collisions = [];
     //test whether villain is colliding with boundaries
     boundaries.forEach(boundary => {
@@ -681,10 +670,8 @@ function animate() {
       const pathways = villain.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
       })
-        console.log({pathways})
       if (pathways.length > 0) {
         const direction = pathways[Math.floor(Math.random() * pathways.length)]
-        console.log({direction});
         switch (direction) {
           case `down`:
             villain.velocity.x = 0
@@ -709,8 +696,13 @@ function animate() {
         }
       
     } else {
-      console.log(`else`);
+      villain.velocity.x = -1 * villain.velocity.x
+      villain.velocity.y = -1 * villain.velocity.y
     }
+    //make current collision values previous collision values to evaluate change
+    villain.prevCollisions = collisions;
+  
+}
   });
 }
 
@@ -784,7 +776,6 @@ addEventListener("keyup", ({ key }) => {
     case `ArrowLeft`:
       keys.a.pressed = false
       corgi.frameY = 1;
-      console.log(`up!!!`)
       break
     case `a`:
       keys.a.pressed = false
@@ -799,6 +790,7 @@ addEventListener("keyup", ({ key }) => {
       corgi.frameY = 2;
       break
   }
+
 });
 
 startBtn.addEventListener(`click`, function () {
