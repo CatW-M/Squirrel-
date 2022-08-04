@@ -9,6 +9,7 @@ p {
   color: white;
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
+  line-height: 1.5em;
 }
 
 #splash-screen {
@@ -47,7 +48,6 @@ canvas {
   font-size: 16px;
   color: #eee;
   position: relative;
-
   width: 70px;
   padding: 15px;
   border: none;

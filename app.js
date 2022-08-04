@@ -462,18 +462,7 @@ function animate() {
  
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
-    // if (villain.position.x < -10 ||
-    //   villain.position.y > canvas.height + 10 ||
-    //   villain.position.x > canvas.width + 10 ||
-    //   villain.position.y < -10) {
-    //   villains.splice(i, 1);
-    //   setTimeout(() => {
-    //     villains.push(regenerate())
-    //   }, 3000);
-    
-    // }
-
-
+  
     if (rectangleCollidesWithSquare({
       rectangle: {
         ...corgi,
@@ -494,6 +483,7 @@ function animate() {
       //set interval and create new instance of villain/push into villains array
     } else {
         cancelAnimationFrame(animationId)
+        document.getElementById("pause").disabled = true;
         alert("The stranger got you! You lose.")
       }
   }
@@ -506,11 +496,9 @@ function animate() {
     winscreen.style.color = "white";
     winscreen.style.padding = '20px';
     winscreen.style.fontSize = `35px`;
-    winscreen.style.margin = `33%`;
-    winscreen.style.marginBottom = `75%`;
     winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
-
     document.getElementById("win").appendChild(winscreen);
+    document.getElementById("pause").disabled = true;
     cancelAnimationFrame(animationId)
     //future = add next level stuff here
   }
