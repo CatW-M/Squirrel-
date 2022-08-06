@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
+* {
+  /* margin: 0; */
+  padding: 0;
+  box-sizing: border-box;
+}
 body {
   background-color: rgb(109, 216, 109);
   overflow: hidden;
@@ -17,8 +21,10 @@ p {
   font-family: 'Press Start 2P', monospace;
   font-size: 35px;
   background-color: darkgoldenrod;
+  margin-top: 50px;
   margin-left: 25%;
   margin-right: 25%;
+  padding-top: 10px;
   border: 4px solid black;
 }
 
@@ -40,8 +46,13 @@ p {
 }
 
 canvas {
-  width: 2340px;
-  height: 1080px;
+  /* position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 5px solid white; */
+  max-width: 100%;
+ max-height: 100%;
 
 }
 #music {
@@ -110,4 +121,16 @@ canvas {
   top: 10px;
   left: 350px;
   background-color: darkgoldenrod;
+  border-radius: 4%;
+  padding: 10px;
+}
+
+#lose {
+  display: none;
+  position:absolute;
+  top: 10px;
+  left: 350px;
+  background-color: darkgoldenrod;
+  border-radius: 4%;
+  padding: 10px;
 }

@@ -8,6 +8,7 @@ canvas.height = innerHeight;
 const scoreDisplay = document.getElementById(`score`)
 let score = 0;
 const winner = document.getElementById(`win`);
+const loser = document.getElementById(`lose`);
 let main = document.getElementById('main');
 let splash = document.getElementById(`splash-screen`);
 let startBtn = document.getElementById(`start`);
@@ -16,6 +17,11 @@ const music = document.querySelector("#music");
 const audio = document.querySelector("audio");
 const pause = document.querySelector("#pause");
 const restart = document.querySelector(`#reset`);
+let diedSound = new Audio(`./mediafiles/Died.mp3`);
+let powerSound = new Audio(`./mediafiles/powerup.mp3`);
+let kibbleChomp = new Audio(`./mediafiles/chomp.mp3`);
+kibbleChomp.volume = .1;
+powerSound.volume = .1;
 
 //game images
 let scaredImage = new Image();
@@ -356,9 +362,10 @@ function resizeCanvasToDisplaySize(canvas) {
   }
 }
 
+//resize canvas if needed
+resizeCanvasToDisplaySize(canvas);
 
 
-//gameloop
 
 
 function animate() {
@@ -373,7 +380,7 @@ function animate() {
   //clear canvas for each frame
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //resize canvas if needed
-  resizeCanvasToDisplaySize(canvas)
+  resizeCanvasToDisplaySize(canvas);
   
   // corgi movements within boundaries
  
@@ -482,9 +489,22 @@ function animate() {
       }, 8000)
       //set interval and create new instance of villain/push into villains array
     } else {
-        cancelAnimationFrame(animationId)
-        document.getElementById("pause").disabled = true;
-        alert("The stranger got you! You lose.")
+        // cancelAnimationFrame(animationId)
+        // document.getElementById("pause").disabled = true;
+        // alert("The stranger got you! You lose.")
+          diedSound.play();
+          cancelAnimationFrame(animationId)
+          gameActive = false;
+          loser.style.display = 'inline-block';
+          restart.innerHTML = `play again`;
+          let losescreen = document.createElement("div");
+          losescreen.style.color = "black";
+          losescreen.style.padding = '20px';
+          losescreen.style.fontSize = `35px`;
+          losescreen.innerHTML = "The Stranger got you. You lose.";
+          document.getElementById("lose").appendChild(losescreen);
+          document.getElementById("pause").disabled = true;
+          
       }
   }
   //win condition 
@@ -517,7 +537,8 @@ function animate() {
       square: powerUp
     })
     ) {
-      powerSquirrel.splice(i, 1)
+      powerSquirrel.splice(i, 1);
+      powerSound.play();
       //make strangers scared
 
       villains.forEach((villain) => {
@@ -539,9 +560,11 @@ function animate() {
       rectangle: corgi
     })
     ) {
-      pellets.splice(i, 1)
-      score += 10
-      scoreDisplay.innerHTML = score
+      kibbleChomp.currentTime = 0;
+      kibbleChomp.play();
+      pellets.splice(i, 1);
+      score += 10;
+      scoreDisplay.innerHTML = score;
     }
   }
   fences.forEach((fence) => {
