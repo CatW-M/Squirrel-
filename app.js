@@ -32,7 +32,7 @@ const boundaries = [];
 const fences = [];
 const powerSquirrel = [];
 const map = [
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-'],
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-'],
   ['-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '-'],
   ['-', '.', '-', '.', '-', '-', '-', '-', '.', '.', '-', '-', '-', '-', '.', '-', '.', '.', '-'],
   ['-', '.', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-'],
@@ -41,7 +41,7 @@ const map = [
   ['-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '-', '-', '-', '-', '.', '.', '-'],
   ['-', '.', '.', '-', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '.', '.', '-'],
   ['-', 'p', '.', '.', '.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '.', '.', '.', 'p', '-'],
-  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-','-', '-', '-', '-', '-', '-', '-', '-', '-']
+  ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 ];
 const pellets = [];
 
@@ -157,16 +157,16 @@ class Villain {
   static speed = 3;
   constructor({ position, velocity, image }) {
     this.position = position;
-      this.velocity = velocity;
-      this.width = 72;
-      this.height = 72;
-      this.frameX = 0;
-      this.frameY = 0;
-      this.moving = false;
-      this.image = image;
-      this.prevCollisions = [];
-      this.speed = 3;
-      this.scared = false;
+    this.velocity = velocity;
+    this.width = 72;
+    this.height = 72;
+    this.frameX = 0;
+    this.frameY = 0;
+    this.moving = false;
+    this.image = image;
+    this.prevCollisions = [];
+    this.speed = 3;
+    this.scared = false;
   }
   draw() {
     if (this.scared) {
@@ -246,17 +246,17 @@ const villains = [
 
 const regenerate = () => {
   return new Villain(
-  {
-    position: {
-      x: Boundary.width * 8 + 2,
-      y: Boundary.height * 5 + 2
-    },
-    velocity: {
-      x: 0,
-      y: -Villain.speed
-    },
-    image: createImage("mediafiles/villain.png")
-  });
+    {
+      position: {
+        x: Boundary.width * 8 + 2,
+        y: Boundary.height * 5 + 2
+      },
+      velocity: {
+        x: 0,
+        y: -Villain.speed
+      },
+      image: createImage("mediafiles/villain.png")
+    });
 };
 
 //helper functions
@@ -264,49 +264,49 @@ map.forEach((row, i) => {
   row.forEach((symbol, j) => {
     switch (symbol) {
       case '-':
-      boundaries.push(
-        new Boundary({
-        position: {
-          x: j * Boundary.width,
-          y: i * Boundary.height
-        },
-        image: createImage("mediafiles/bushboundary.png")
-        })
-      )
-      break
+        boundaries.push(
+          new Boundary({
+            position: {
+              x: j * Boundary.width,
+              y: i * Boundary.height
+            },
+            image: createImage("mediafiles/bushboundary.png")
+          })
+        )
+        break
       case '.':
-      pellets.push(
-        new Pellets({
-        position: {
-          x: j * Boundary.width + Boundary.width / 2,
-          y: i * Boundary.height + Boundary.height / 2
-        }
-        })
-      )
-      break
+        pellets.push(
+          new Pellets({
+            position: {
+              x: j * Boundary.width + Boundary.width / 2,
+              y: i * Boundary.height + Boundary.height / 2
+            }
+          })
+        )
+        break
       case 'f':
         fences.push(
           new Fence({
-          position: {
-            x: j * Boundary.width,
-            y: i * Boundary.height
-          },
-          image: createImage(`mediafiles/whitefencexaxis.png`)
+            position: {
+              x: j * Boundary.width,
+              y: i * Boundary.height
+            },
+            image: createImage(`mediafiles/whitefencexaxis.png`)
           })
         )
         break
       case 'p':
-      powerSquirrel.push(
-        new PowerSquirrel({
-        position: {
-          x: j * Boundary.width + Boundary.width / 2,
-          y: i * Boundary.height + Boundary.height / 2
-        },
-        image: createImage("mediafiles/squirrel.png")
-        })
-      )
-      break
-     
+        powerSquirrel.push(
+          new PowerSquirrel({
+            position: {
+              x: j * Boundary.width + Boundary.width / 2,
+              y: i * Boundary.height + Boundary.height / 2
+            },
+            image: createImage("mediafiles/squirrel.png")
+          })
+        )
+        break
+
     }
   })
 })
@@ -360,7 +360,36 @@ function resizeCanvasToDisplaySize(canvas) {
     canvas.width = displayWidth;
     canvas.height = displayHeight;
   }
-}
+};
+
+function loseGame() {
+  diedSound.play();
+  cancelAnimationFrame(animationId)
+  gameActive = false;
+  loser.style.display = 'inline-block';
+  restart.innerHTML = `play again`;
+  let losescreen = document.createElement("div");
+  losescreen.style.color = "black";
+  losescreen.style.padding = '20px';
+  losescreen.style.fontSize = `35px`;
+  losescreen.innerHTML = "The Stranger got you. You lose.";
+  document.getElementById("lose").appendChild(losescreen);
+  document.getElementById("pause").disabled = true;
+};
+
+function winGame() {
+  gameActive = false;
+  winner.style.display = 'inline-block';
+  restart.innerHTML = `play again`;
+  let winscreen = document.createElement("div");
+  winscreen.style.color = "white";
+  winscreen.style.padding = '20px';
+  winscreen.style.fontSize = `35px`;
+  winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
+  document.getElementById("win").appendChild(winscreen);
+  document.getElementById("pause").disabled = true;
+  cancelAnimationFrame(animationId);
+};
 
 //resize canvas if needed
 resizeCanvasToDisplaySize(canvas);
@@ -381,9 +410,9 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //resize canvas if needed
   resizeCanvasToDisplaySize(canvas);
-  
+
   // corgi movements within boundaries
- 
+
   if (keys.w.pressed && lastKey === `w`) {
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i];
@@ -466,10 +495,10 @@ function animate() {
     corgi.velocity.y = 0;
     corgi.velocity.x = 0;
   }
- 
+
   for (let i = villains.length - 1; 0 <= i; i--) {
     const villain = villains[i];
-  
+
     if (rectangleCollidesWithSquare({
       rectangle: {
         ...corgi,
@@ -489,37 +518,12 @@ function animate() {
       }, 8000)
       //set interval and create new instance of villain/push into villains array
     } else {
-        // cancelAnimationFrame(animationId)
-        // document.getElementById("pause").disabled = true;
-        // alert("The stranger got you! You lose.")
-          diedSound.play();
-          cancelAnimationFrame(animationId)
-          gameActive = false;
-          loser.style.display = 'inline-block';
-          restart.innerHTML = `play again`;
-          let losescreen = document.createElement("div");
-          losescreen.style.color = "black";
-          losescreen.style.padding = '20px';
-          losescreen.style.fontSize = `35px`;
-          losescreen.innerHTML = "The Stranger got you. You lose.";
-          document.getElementById("lose").appendChild(losescreen);
-          document.getElementById("pause").disabled = true;
-          
+        loseGame();
       }
   }
   //win condition 
   if (pellets.length === 0 && gameActive) {
-    gameActive = false;
-    winner.style.display = 'inline-block';
-    restart.innerHTML = `play again`;
-    let winscreen = document.createElement("div");
-    winscreen.style.color = "white";
-    winscreen.style.padding = '20px';
-    winscreen.style.fontSize = `35px`;
-    winscreen.innerHTML = "Good Dog, Gumbo! You Win! (Stay Tuned for More Levels)";
-    document.getElementById("win").appendChild(winscreen);
-    document.getElementById("pause").disabled = true;
-    cancelAnimationFrame(animationId)
+    winGame();
     //future = add next level stuff here
   }
 
@@ -579,7 +583,7 @@ function animate() {
       corgi.velocity.x = 0
     }
   });
-  
+
   boundaries.forEach((boundary) => {
     boundary.draw();
     if (
@@ -592,13 +596,13 @@ function animate() {
       corgi.velocity.x = 0
     }
   });
-  
+
   corgi.update();
 
 
   //stranger movement logic
   villains.forEach((villain) => {
-  //drawing villains
+    //drawing villains
     villain.update();
     //array to keep track of current collisions
     const collisions = [];
@@ -665,7 +669,7 @@ function animate() {
         },
         square: boundary
       });
-     
+
       if (!collisions.includes(`down`) && down_collision) {
         collisions.push(`down`);
       }
@@ -677,7 +681,7 @@ function animate() {
       else if (villain.velocity.x < 0) { villain.prevCollisions.push(`left`) }
       else if (villain.velocity.y < 0) { villain.prevCollisions.push(`up`) }
       else if (villain.velocity.y > 0) { villain.prevCollisions.push(`down`) }
-      
+
       const pathways = villain.prevCollisions.filter((collision) => {
         return !collisions.includes(collision)
       })
@@ -705,15 +709,15 @@ function animate() {
           //   villain.velocity.y = -1 * villain.velocity.y
           //   break
         }
-      
-    } else {
-      villain.velocity.x = -1 * villain.velocity.x
-      villain.velocity.y = -1 * villain.velocity.y
+
+      } else {
+        villain.velocity.x = -1 * villain.velocity.x
+        villain.velocity.y = -1 * villain.velocity.y
+      }
+      //make current collision values previous collision values to evaluate change
+      villain.prevCollisions = collisions;
+
     }
-    //make current collision values previous collision values to evaluate change
-    villain.prevCollisions = collisions;
-  
-}
   });
 }
 
