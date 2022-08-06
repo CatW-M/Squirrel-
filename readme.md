@@ -146,4 +146,17 @@ Audio was added to augment user experience. A toggle button was added to the men
 
 ![Game in Progress](mediafiles/gameshotgumbo.png)
 
+![Menu and Controls](mediafiles/menuControls.png)
+
+![Win Screen](mediafiles/winScreen.png)
+
+![Lose Screen](mediafiles/loseScreen.png)
+
+## Future Development
+---
+- Add mobile accessibility
+- Write sound control function to mute sound effects
+- Add additional levels
+- Modularize code
+
 ---
